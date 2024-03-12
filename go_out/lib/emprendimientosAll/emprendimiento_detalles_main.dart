@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import './sobreNos/sobre_nosotros_tab.dart'; // Asegúrate de crear este archivo.
-import './comidas/menu_tab.dart'; // Asegúrate de crear este archivo.
-import './eventos/eventos_tab.dart'; // Asegúrate de crear este archivo.
-import './contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
+import '../sobreNos/sobre_nosotros_tab.dart'; // Asegúrate de crear este archivo.
+import '../comidas/menu_tab.dart'; // Asegúrate de crear este archivo.
+import '../eventos/eventos_tab.dart'; // Asegúrate de crear este archivo.
+import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
 
 class EmprendimientoDetallesPage extends StatelessWidget {
   final Map emprendimiento;

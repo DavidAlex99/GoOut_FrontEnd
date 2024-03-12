@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './login/login.dart';
-import 'emprendimientos_page.dart';
+import './emprendimientosAll/emprendimientos_page.dart';
 
 void main() {
   runApp(const MyApp());
