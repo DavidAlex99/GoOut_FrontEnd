@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import './emprendimiento_detalles_main.dart';
+
+Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
+  final String url =
+      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    throw Exception('Failed to load emprendimiento details');
+  }
+}
 
 class ComidasPage extends StatefulWidget {
   @override
@@ -78,6 +91,22 @@ class _ComidasPageState extends State<ComidasPage> {
                     fit: BoxFit.cover,
                   )
                 : null,
+            onTap: () async {
+              try {
+                var emprendimientoDetails = await fetchEmprendimientoDetails(
+                    comida['emprendimiento_id']);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EmprendimientoDetallesPage(
+                        emprendimiento: emprendimientoDetails),
+                  ),
+                );
+              } catch (e) {
+                print(
+                    e); // Considera usar un enfoque más adecuado para manejar y reportar errores.
+              }
+            },
           );
         },
       ),
