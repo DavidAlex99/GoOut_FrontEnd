@@ -1,9 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final String baseUrl =
       'http://192.168.100.6:8000/goOutApp'; // Reemplaza esto por la URL real de tu backen
+
+  // Método para guardar el token
+  Future<void> _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+  }
 
   Future<String?> login(String username, String password) async {
     final response = await http.post(
@@ -19,7 +26,9 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      return responseData['token'];
+      String token = responseData['token'];
+      await _saveToken(token); // Guardar el token
+      return token;
     } else {
       return null;
     }
@@ -42,7 +51,9 @@ class AuthService {
 
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
-      return responseData['token']; // Devolver el token para uso futuro
+      String token = responseData['token'];
+      await _saveToken(token); // Guardar el token
+      return token;
     } else {
       return null;
     }

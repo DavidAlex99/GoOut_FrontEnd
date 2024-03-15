@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'emprendimiento_detalles_main.dart';
-import './comidas_page.dart';
-import './eventos_page.dart';
+import 'emprendimiento_detalles_main.dart'; // Asegúrate de que esta ruta es correcta
+import './comidas_page.dart'; // Asegúrate de que esta ruta es correcta
+import './eventos_page.dart'; // Asegúrate de que esta ruta es correcta
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EmprendimientosPage extends StatefulWidget {
-  final String userId; // Agrega esta línea
+  final String userId;
 
-  EmprendimientosPage({Key? key, required this.userId})
-      : super(key: key); // Modifica esta línea
+  EmprendimientosPage({Key? key, required this.userId}) : super(key: key);
 
   @override
   _EmprendimientosPageState createState() => _EmprendimientosPageState();
@@ -17,18 +17,8 @@ class EmprendimientosPage extends StatefulWidget {
 
 class _EmprendimientosPageState extends State<EmprendimientosPage> {
   final String apiUrl = "http://192.168.100.6:8000/goOutApp/emprendimientos";
-  List emprendimientos = [];
-  String? selectedCategory = null; // Almacena la categoría seleccionada
-  List<String> categories = [
-    'Todos',
-    'REST',
-    'BAR',
-    'DISCO',
-    'CAFE',
-    'TIENDA',
-    'SERV',
-    'OTRO'
-  ]; // Lista de categorías para el filtro
+  List<dynamic> emprendimientos = [];
+  String? selectedCategory = 'Todos';
 
   @override
   void initState() {
@@ -37,19 +27,33 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
   }
 
   fetchEmprendimientos() async {
-    // Modificacion de la url para realizar el filtro
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString(
+        'auth_token'); // Usa aquí la misma clave que usaste para guardar el token
+
     String filterUrl = apiUrl;
     if (selectedCategory != null && selectedCategory != 'Todos') {
       filterUrl += '?categoria=$selectedCategory';
     }
-    var response = await http.get(Uri.parse(filterUrl));
+
+    var response = await http.get(
+      Uri.parse(filterUrl),
+      headers: token != null
+          ? {
+              'Content-Type': 'application/json',
+              'Authorization': 'Token $token',
+            }
+          : {
+              'Content-Type': 'application/json',
+            },
+    );
+
     if (response.statusCode == 200) {
-      var data = json.decode(response.body) as List;
       setState(() {
-        emprendimientos = data;
+        emprendimientos = json.decode(response.body);
       });
     } else {
-      throw Exception('Failed to load emprendimientos');
+      print('Failed to load emprendimientos');
     }
   }
 
@@ -61,35 +65,41 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
         actions: <Widget>[
           DropdownButton<String>(
             value: selectedCategory,
-            underline: Container(), // Elimina la línea subyacente del Dropdown
-            onChanged: (value) {
+            underline: Container(),
+            onChanged: (String? newValue) {
               setState(() {
-                selectedCategory = value;
-                fetchEmprendimientos(); // Refetch los emprendimientos con el filtro aplicado
+                selectedCategory = newValue!;
+                fetchEmprendimientos();
               });
             },
-            items: categories.map<DropdownMenuItem<String>>((String category) {
+            items: <String>[
+              'Todos',
+              'REST',
+              'BAR',
+              'DISCO',
+              'CAFE',
+              'TIENDA',
+              'SERV',
+              'OTRO'
+            ].map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
-                value: category,
-                child: Text(category),
+                value: value,
+                child: Text(value),
               );
             }).toList(),
           ),
           IconButton(
             icon: Icon(Icons.restaurant_menu),
             onPressed: () {
-              // Navegación a ComidasPage
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ComidasPage()),
               );
             },
           ),
-          // navegacion a eventos
           IconButton(
             icon: Icon(Icons.party_mode),
             onPressed: () {
-              // Navegación a ComidasPage
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => EventosPage()),
@@ -110,6 +120,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
               fit: BoxFit.cover,
             ),
             title: Text(emprendimiento['nombre']),
+            subtitle: Text('Categoría: ${emprendimiento['categoria']}'),
             onTap: () {
               Navigator.push(
                 context,
