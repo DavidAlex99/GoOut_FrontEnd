@@ -29,10 +29,10 @@ class AuthService {
     }
   }
 
-  Future<bool> register(String username, String email, String password) async {
+  Future<String?> register(
+      String username, String email, String password, String telefono) async {
     final response = await http.post(
-      Uri.parse(
-          '$baseUrl/register/'), // Asegúrate de que esta ruta coincide con tu backend
+      Uri.parse('$baseUrl/register/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -40,10 +40,16 @@ class AuthService {
         'username': username,
         'email': email,
         'password': password,
+        'telefono': telefono, // Incluir el campo adicional
       }),
     );
 
-    return response.statusCode ==
-        201; // Retorna verdadero si el registro fue exitoso
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+      return responseData['user_id']
+          .toString(); // Devolver el user_id para uso futuro
+    } else {
+      return null;
+    }
   }
 }

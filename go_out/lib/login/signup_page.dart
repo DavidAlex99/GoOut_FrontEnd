@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'auth_service.dart'; // Asegúrate de tener este archivo y clase implementados
-import 'session_manager.dart'; // Opcional aquí, dependiendo de si guardas datos al registrarse
+import 'auth_service.dart';
+import 'session_manager.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -11,15 +11,19 @@ class _SignupPageState extends State<SignupPage> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _telefonoController =
+      TextEditingController(); // Campo adicional para el teléfono
 
   void _register() async {
     String username = _usernameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
-    bool success = await AuthService().register(username, email, password);
-    if (success) {
-      // Posiblemente guardar datos del usuario y/o navegar a la página de inicio
-      // No siempre es necesario guardar el ID del usuario aquí, depende de tu flujo de aplicación
+    String telefono =
+        _telefonoController.text; // Recolectar el valor del teléfono
+    String? userId = await AuthService().register(username, email, password,
+        telefono); // Asegúrate de ajustar AuthService
+    if (userId != null) {
+      // Guardar userId para uso futuro y navegar a otra pantalla si es necesario
     } else {
       // Mostrar error
     }
@@ -45,6 +49,10 @@ class _SignupPageState extends State<SignupPage> {
               controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(labelText: 'Password'),
+            ),
+            TextField(
+              controller: _telefonoController,
+              decoration: InputDecoration(labelText: 'Telefono'),
             ),
             ElevatedButton(
               onPressed: _register,
