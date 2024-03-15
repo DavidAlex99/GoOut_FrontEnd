@@ -6,6 +6,11 @@ import './comidas_page.dart';
 import './eventos_page.dart';
 
 class EmprendimientosPage extends StatefulWidget {
+  final String userId; // Agrega esta línea
+
+  EmprendimientosPage({Key? key, required this.userId})
+      : super(key: key); // Modifica esta línea
+
   @override
   _EmprendimientosPageState createState() => _EmprendimientosPageState();
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'session_manager.dart';
+import '../emprendimientosAll/emprendimientos_page.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -20,12 +21,35 @@ class _SignupPageState extends State<SignupPage> {
     String password = _passwordController.text;
     String telefono =
         _telefonoController.text; // Recolectar el valor del teléfono
-    String? userId = await AuthService().register(username, email, password,
-        telefono); // Asegúrate de ajustar AuthService
+    String? userId =
+        await AuthService().register(username, email, password, telefono);
     if (userId != null) {
-      // Guardar userId para uso futuro y navegar a otra pantalla si es necesario
+      // pasar el userId del usuario actual
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EmprendimientosPage(userId: userId)),
+      );
     } else {
-      // Mostrar error
+      // Mostrar error si el registro falla
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error de Registro"),
+            content: Text(
+                "No se pudo completar el registro. Por favor, inténtalo de nuevo."),
+            actions: <Widget>[
+              TextButton(
+                child: Text("Cerrar"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
