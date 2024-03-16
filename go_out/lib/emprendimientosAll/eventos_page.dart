@@ -3,11 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './emprendimiento_detalles_main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
+  final prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('auth_token');
+
   final String url =
       'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
-  final response = await http.get(Uri.parse(url));
+  final response = await http.get(
+    Uri.parse(url),
+    headers: token != null
+        ? {
+            'Authorization': 'Token $token',
+          }
+        : {},
+  );
 
   if (response.statusCode == 200) {
     return json.decode(response.body);
@@ -32,12 +43,21 @@ class _EventosPageState extends State<EventosPage> {
   }
 
   fetchEventos() async {
-    var url =
-        'http://192.168.100.6:8000/goOutApp/eventos'; // Asegúrate de que esta URL es correcta
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('auth_token');
+
+    var url = 'http://192.168.100.6:8000/goOutApp/eventos';
     if (selectedCategory != 'Todos') {
       url += '?categoria=$selectedCategory';
     }
-    var response = await http.get(Uri.parse(url));
+    var response = await http.get(
+      Uri.parse(url),
+      headers: token != null
+          ? {
+              'Authorization': 'Token $token',
+            }
+          : {},
+    );
     if (response.statusCode == 200) {
       setState(() {
         eventos = json.decode(response.body);

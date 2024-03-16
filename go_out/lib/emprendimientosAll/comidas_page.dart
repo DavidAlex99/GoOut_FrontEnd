@@ -2,11 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './emprendimiento_detalles_main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
+  final prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('auth_token');
+
   final String url =
       'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
-  final response = await http.get(Uri.parse(url));
+  final response = await http.get(
+    Uri.parse(url),
+    headers: token != null
+        ? {
+            'Authorization': 'Token $token',
+          }
+        : {},
+  );
 
   if (response.statusCode == 200) {
     return json.decode(response.body);
@@ -30,12 +41,26 @@ class _ComidasPageState extends State<ComidasPage> {
     fetchComidas();
   }
 
+  // metodo para sincronizacion de todas las comidas
   fetchComidas() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString(
+        'auth_token'); // Asegúrate de que 'auth_token' sea la clave correcta para tu token
+
     var url = 'http://192.168.100.6:8000/goOutApp/comidas';
     if (selectedCategory != 'Todos') {
       url += '?categoria=$selectedCategory';
     }
-    var response = await http.get(Uri.parse(url));
+
+    var response = await http.get(
+      Uri.parse(url),
+      headers: token != null
+          ? {
+              'Authorization': 'Token $token',
+            }
+          : {},
+    );
+
     if (response.statusCode == 200) {
       setState(() {
         comidas = json.decode(response.body);
