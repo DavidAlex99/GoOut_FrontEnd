@@ -8,12 +8,14 @@ class EventosTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("Emprendimiento en EventosTab: ${emprendimiento.toString()}");
     List eventos = emprendimiento['eventos'] ?? [];
 
     return ListView.builder(
       itemCount: eventos.length,
       itemBuilder: (context, index) {
         var evento = eventos[index];
+        print("Evento en EventosTab: ${evento.toString()}");
         return Card(
           margin: EdgeInsets.all(8.0),
           child: ExpansionTile(
@@ -32,6 +34,7 @@ class EventosTab extends StatelessWidget {
               TextButton(
                 child: Text('Ver detalles'),
                 onPressed: () {
+                  print("ID del evento antes de navegar: ${evento['id']}");
                   Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -11,6 +11,8 @@ class EmprendimientoDetallesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "Emprendimiento en EmprendimientoDetallesPage: ${emprendimiento.toString()}");
     return DefaultTabController(
       length: 4,
       child: Scaffold(
