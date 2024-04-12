@@ -5,6 +5,7 @@ import 'emprendimiento_detalles_main.dart'; // Asegúrate de que esta ruta es co
 import './comidas_page.dart'; // Asegúrate de que esta ruta es correcta
 import './eventos_page.dart'; // Asegúrate de que esta ruta es correcta
 import 'package:shared_preferences/shared_preferences.dart';
+import './EmprendimientosCercanosPage.dart';
 
 class EmprendimientosPage extends StatefulWidget {
   final String userId;
@@ -87,6 +88,16 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
                 child: Text(value),
               );
             }).toList(),
+          ),
+          IconButton(
+            icon: Icon(Icons.near_me),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EmprendimientosCercanosPage()),
+              );
+            },
           ),
           IconButton(
             icon: Icon(Icons.restaurant_menu),

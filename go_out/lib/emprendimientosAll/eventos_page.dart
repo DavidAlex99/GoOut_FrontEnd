@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './emprendimiento_detalles_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
@@ -34,6 +36,10 @@ class EventosPage extends StatefulWidget {
 
 class _EventosPageState extends State<EventosPage> {
   String? selectedCategory = 'Todos';
+  bool distanceFilter =
+      false; // Nuevo estado para manejar el filtro por distancia
+  double? userLat;
+  double? userLon;
   List eventos = [];
 
   @override
@@ -42,14 +48,38 @@ class _EventosPageState extends State<EventosPage> {
     fetchEventos();
   }
 
+  Future<void> requestPermissionsAndGetLocation() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        userLat = position.latitude;
+        userLon = position.longitude;
+        distanceFilter = true; // Activa el filtro por distancia
+      });
+      fetchEventos(); // Refresca los eventos con la ubicación actual
+    }
+  }
+
   fetchEventos() async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('auth_token');
-
     var url = 'http://192.168.100.6:8000/goOutApp/eventos';
+
     if (selectedCategory != 'Todos') {
       url += '?categoria=$selectedCategory';
     }
+
+    // Cuando el filtro por distancia está activo, usa la URL de eventos filtrados
+    if (distanceFilter && userLat != null && userLon != null) {
+      url =
+          'http://192.168.100.6:8000/goOutApp/eventos/filtrados?lat=$userLat&lon=$userLon';
+      if (selectedCategory != 'Todos') {
+        url += '&categoria=$selectedCategory';
+      }
+    }
+
     var response = await http.get(
       Uri.parse(url),
       headers: token != null
@@ -58,6 +88,7 @@ class _EventosPageState extends State<EventosPage> {
             }
           : {},
     );
+
     if (response.statusCode == 200) {
       setState(() {
         eventos = json.decode(response.body);
@@ -88,6 +119,12 @@ class _EventosPageState extends State<EventosPage> {
                   child: Text(value),
                 );
               }).toList(),
+            ),
+            IconButton(
+              icon: Icon(Icons.location_on),
+              onPressed: () {
+                requestPermissionsAndGetLocation();
+              },
             ),
           ],
         ),
