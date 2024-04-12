@@ -85,7 +85,6 @@ class _ComidasPageState extends State<ComidasPage> {
         Position position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
 
-        var url = 'http://192.168.100.6:8000/goOutApp/comidas/cercanas';
         var queryParams = {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),

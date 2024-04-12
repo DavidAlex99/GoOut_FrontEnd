@@ -1,4 +1,3 @@
-// Asegúrate de importar los paquetes necesarios
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -36,125 +35,182 @@ class EventosPage extends StatefulWidget {
 
 class _EventosPageState extends State<EventosPage> {
   String? selectedCategory = 'Todos';
-  bool distanceFilter =
-      false; // Nuevo estado para manejar el filtro por distancia
-  double? userLat;
-  double? userLon;
-  List eventos = [];
+  List<dynamic> eventos = [];
+  bool loading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchEventos();
+    fetchEventosInicial();
   }
 
-  Future<void> requestPermissionsAndGetLocation() async {
-    var status = await Permission.location.request();
-    if (status.isGranted) {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      setState(() {
-        userLat = position.latitude;
-        userLon = position.longitude;
-        distanceFilter = true; // Activa el filtro por distancia
-      });
-      fetchEventos(); // Refresca los eventos con la ubicación actual
-    }
-  }
+  // Método inicial que muestra los eventos sin filtro de distancia
+  fetchEventosInicial() async {
+    setState(() {
+      loading = true;
+    });
 
-  fetchEventos() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('auth_token');
     var url = 'http://192.168.100.6:8000/goOutApp/eventos';
-
     if (selectedCategory != 'Todos') {
       url += '?categoria=$selectedCategory';
     }
 
-    // Cuando el filtro por distancia está activo, usa la URL de eventos filtrados
-    if (distanceFilter && userLat != null && userLon != null) {
-      url =
-          'http://192.168.100.6:8000/goOutApp/eventos/filtrados?lat=$userLat&lon=$userLon';
-      if (selectedCategory != 'Todos') {
-        url += '&categoria=$selectedCategory';
-      }
-    }
-
-    var response = await http.get(
-      Uri.parse(url),
-      headers: token != null
-          ? {
-              'Authorization': 'Token $token',
-            }
-          : {},
-    );
-
+    var response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       setState(() {
         eventos = json.decode(response.body);
+        loading = false;
       });
     } else {
-      throw Exception('Failed to load eventos');
+      setState(() {
+        loading = false;
+      });
+      print('Failed to load eventos');
     }
+  }
+
+  // Método que muestra los eventos con filtro de distancia
+  Future<void> fetchEventosCercanos() async {
+    var status = await Permission.locationWhenInUse.status;
+    if (!status.isGranted) {
+      await Permission.locationWhenInUse.request();
+    }
+
+    if (await Permission.locationWhenInUse.isGranted) {
+      try {
+        setState(() {
+          loading = true;
+        });
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+
+        var queryParams = {
+          'lat': position.latitude.toString(),
+          'lon': position.longitude.toString(),
+          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
+        };
+        var uri = Uri.http(
+            '192.168.100.6:8000', '/goOutApp/eventos/cercanos', queryParams);
+
+        final response = await http.get(uri);
+
+        if (response.statusCode == 200) {
+          setState(() {
+            eventos = json.decode(response.body);
+            loading = false;
+          });
+        } else {
+          setState(() {
+            loading = false;
+          });
+          // Manejar el error de carga
+        }
+      } catch (e) {
+        setState(() {
+          loading = false;
+        });
+        // Manejar el error
+      }
+    } else {
+      // Manejar el caso en que el usuario no otorga permiso
+      _showLocationPermissionDialog();
+    }
+  }
+
+  void _showLocationPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Permiso de ubicación requerido"),
+          content: Text(
+              "Esta función necesita acceso a tu ubicación para calcular distancias."),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Eventos'),
-          actions: <Widget>[
-            DropdownButton<String>(
-              value: selectedCategory,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedCategory = newValue;
-                  fetchEventos();
-                });
-              },
-              items: <String>['Todos', 'ARTISTICAS', 'CULTURALES', 'DEPORTIVO']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
+      appBar: AppBar(
+        title: Text('Eventos'),
+        actions: <Widget>[
+          DropdownButton<String>(
+            value: selectedCategory,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedCategory = newValue;
+                fetchEventosInicial(); // Refetch with new category but without distance filtering
+              });
+            },
+            items: <String>[
+              'Todos',
+              'ARTISTICAS',
+              'CULTURALES',
+              'DEPORTIVO',
+              'AIRE_LIBRE',
+              'NOCTURNO',
+              'OTRO'
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+          IconButton(
+            icon: Icon(Icons.location_on),
+            onPressed: fetchEventosCercanos,
+          ),
+        ],
+      ),
+      body: loading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: eventos.length,
+              itemBuilder: (context, index) {
+                var evento = eventos[index];
+                String distanciaStr = evento['distancia'] != null
+                    ? "${evento['distancia'].toStringAsFixed(2)} km"
+                    : "Distancia no disponible";
+                return ListTile(
+                  title: Text(evento['titulo']),
+                  subtitle: Text(
+                      '${evento['descripcion']} - \$${evento['precio']} - Distancia: $distanciaStr'),
+                  leading: evento['imagen'] != null
+                      ? Image.network(
+                          evento['imagen'],
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                  onTap: () async {
+                    try {
+                      var emprendimientoDetails =
+                          await fetchEmprendimientoDetails(
+                              evento['emprendimiento_id']);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EmprendimientoDetallesPage(
+                              emprendimiento: emprendimientoDetails),
+                        ),
+                      );
+                    } catch (e) {
+                      print(e); // Manejar el error adecuadamente.
+                    }
+                  },
                 );
-              }).toList(),
-            ),
-            IconButton(
-              icon: Icon(Icons.location_on),
-              onPressed: () {
-                requestPermissionsAndGetLocation();
               },
             ),
-          ],
-        ),
-        body: ListView.builder(
-          itemCount: eventos.length,
-          itemBuilder: (context, index) {
-            var evento = eventos[index];
-            return ListTile(
-              title: Text(evento['titulo']),
-              subtitle:
-                  Text('${evento['descripcion']} - \$${evento['precio']}'),
-              onTap: () async {
-                try {
-                  var emprendimientoDetails = await fetchEmprendimientoDetails(
-                      evento['emprendimiento_id']);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EmprendimientoDetallesPage(
-                          emprendimiento: emprendimientoDetails),
-                    ),
-                  );
-                } catch (e) {
-                  // Manejar el error, por ejemplo, mostrando un mensaje al usuario
-                  print(
-                      e); // Considera usar un enfoque más robusto para manejar y reportar errores
-                }
-              },
-            );
-          },
-        ));
+    );
   }
 }
