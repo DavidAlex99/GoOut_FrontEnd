@@ -4,20 +4,27 @@ import '../comidas/menu_tab.dart'; // Asegúrate de crear este archivo.
 import '../eventos/eventos_tab.dart'; // Asegúrate de crear este archivo.
 import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
 
-class EmprendimientoDetallesPage extends StatelessWidget {
+class EmprendimientoDetallesPage extends StatefulWidget {
   final Map emprendimiento;
 
-  EmprendimientoDetallesPage({required this.emprendimiento});
+  EmprendimientoDetallesPage({Key? key, required this.emprendimiento})
+      : super(key: key);
 
   @override
+  _EmprendimientoDetallesPageState createState() =>
+      _EmprendimientoDetallesPageState();
+}
+
+class _EmprendimientoDetallesPageState
+    extends State<EmprendimientoDetallesPage> {
+  @override
   Widget build(BuildContext context) {
-    print(
-        "Emprendimiento en EmprendimientoDetallesPage: ${emprendimiento.toString()}");
     return DefaultTabController(
-      length: 4,
+      length: 4, // Número de secciones
       child: Scaffold(
         appBar: AppBar(
-          title: Text(emprendimiento['nombre']),
+          title: Text(
+              widget.emprendimiento['nombre'] ?? 'Detalle del Emprendimiento'),
           bottom: TabBar(
             tabs: [
               Tab(text: 'Sobre Nosotros'),
@@ -29,10 +36,11 @@ class EmprendimientoDetallesPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            SobreNosotrosTab(emprendimiento: emprendimiento),
-            MenuTab(emprendimiento: emprendimiento),
-            EventosTab(emprendimiento: emprendimiento),
-            ContactoTab(emprendimiento: emprendimiento),
+            SobreNosotrosTab(emprendimiento: widget.emprendimiento),
+            MenuTab(emprendimiento: widget.emprendimiento),
+            EventosTab(emprendimiento: widget.emprendimiento),
+            // aqui se accede a la seccio de contacto
+            ContactoTab(emprendimiento: widget.emprendimiento),
           ],
         ),
       ),

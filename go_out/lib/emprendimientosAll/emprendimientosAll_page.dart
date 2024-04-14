@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import './emprendimiento_detalles_main.dart';
+import 'emprendimiento_detalles_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart';
+import './comidas_page.dart';
+import './eventos_page.dart';
 
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
@@ -24,40 +27,45 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   }
 }
 
-class ComidasPage extends StatefulWidget {
+class EmprendimientosPage extends StatefulWidget {
+  final String userId;
+
+  EmprendimientosPage({Key? key, required this.userId}) : super(key: key);
+
   @override
-  _ComidasPageState createState() => _ComidasPageState();
+  _EmprendimientosPageState createState() => _EmprendimientosPageState();
 }
 
-class _ComidasPageState extends State<ComidasPage> {
-  String? selectedCategory = 'Todos';
-  List<dynamic> comidas = [];
+class _EmprendimientosPageState extends State<EmprendimientosPage> {
+  String selectedCategory = 'Todos';
   bool loading = false;
+  List<dynamic> emprendimientos = [];
 
   @override
   void initState() {
     super.initState();
-    fetchComidasInicial();
+    fetchEmprendimientosInicial();
   }
 
-  fetchComidasInicial() async {
+  fetchEmprendimientosInicial() async {
     try {
       setState(() {
         loading = true;
       });
-      final url = 'http://192.168.100.6:8000/goOutApp/comidas' +
+      final url = 'http://192.168.100.6:8000/goOutApp/emprendimientos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         setState(() {
-          comidas = json.decode(response.body);
+          emprendimientos = json.decode(response.body);
+          print(emprendimientos);
         });
       } else {
-        throw Exception('Failed to load comidas');
+        throw Exception('Failed to load emprendimientos');
       }
     } catch (e) {
-      print('Error fetching comidas: $e');
+      print('Error fetching emprendimientos: $e');
     } finally {
       setState(() {
         loading = false;
@@ -65,7 +73,7 @@ class _ComidasPageState extends State<ComidasPage> {
     }
   }
 
-  fetchComidasCercanas() async {
+  fetchEmprendimientosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -78,8 +86,8 @@ class _ComidasPageState extends State<ComidasPage> {
         });
         final position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
-        final uri =
-            Uri.http('192.168.100.6:8000', '/goOutApp/comidas/cercanas', {
+        final uri = Uri.http(
+            '192.168.100.6:8000', '/goOutApp/emprendimientos/cercanos', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
@@ -89,13 +97,13 @@ class _ComidasPageState extends State<ComidasPage> {
 
         if (response.statusCode == 200) {
           setState(() {
-            comidas = json.decode(response.body);
+            emprendimientos = json.decode(response.body);
           });
         } else {
-          throw Exception('Failed to load comidas with distances');
+          throw Exception('Failed to load emprendimientos with distances');
         }
       } catch (e) {
-        print('Error fetching comidas with distances: $e');
+        print('Error fetching emprendimientos with distances: $e');
       } finally {
         setState(() {
           loading = false;
@@ -111,8 +119,9 @@ class _ComidasPageState extends State<ComidasPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Permission Required"),
-          content: Text("This feature requires location access to function."),
+          title: Text("Permiso de ubicación requerido"),
+          content: Text(
+              "Esta función necesita acceso a tu ubicación para calcular distancias."),
           actions: <Widget>[
             TextButton(
               child: Text("OK"),
@@ -128,24 +137,25 @@ class _ComidasPageState extends State<ComidasPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Comidas'),
+        title: Text('Emprendimientos'),
         actions: [
           DropdownButton<String>(
             value: selectedCategory,
             onChanged: (newValue) {
               setState(() {
                 selectedCategory = newValue!;
-                fetchComidasInicial();
+                fetchEmprendimientosInicial();
               });
             },
             items: <String>[
               'Todos',
-              'ENTRANTE',
-              'PRINCIPAL',
-              'POSTRE',
-              'BEBIDA',
-              'SNACKS',
-              'OTRO'
+              'RESTAURANTE',
+              'BAR',
+              'DISCOTECA',
+              'CAFETERIA',
+              'TIENDA',
+              'SERVICIOS',
+              'OTROS',
             ].map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
@@ -155,32 +165,52 @@ class _ComidasPageState extends State<ComidasPage> {
           ),
           IconButton(
             icon: Icon(Icons.location_on),
-            onPressed: fetchComidasCercanas,
+            onPressed: fetchEmprendimientosCercanos,
+          ),
+          IconButton(
+            icon: Icon(Icons.restaurant_menu),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ComidasPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.party_mode),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EventosPage()),
+              );
+            },
           ),
         ],
       ),
       body: loading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: comidas.length,
+              itemCount: emprendimientos.length,
               itemBuilder: (context, index) {
-                final comida = comidas[index];
-                final distanciaStr = comida['distancia'] != null
-                    ? "${comida['distancia'].toStringAsFixed(2)} km"
+                final emprendimiento = emprendimientos[index];
+                final distanciaStr = emprendimiento['distancia'] != null
+                    ? "${emprendimiento['distancia'].toStringAsFixed(2)} km"
                     : "Distance not available";
                 return ListTile(
-                  title: Text(comida['nombre']),
+                  leading: Image.network(
+                    emprendimiento['imagen'],
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(emprendimiento['nombre']),
                   subtitle: Text(
-                      '${comida['descripcion']} - \$${comida['precio']} - Distancia: $distanciaStr'),
-                  leading: comida['imagen'] != null
-                      ? Image.network(comida['imagen'],
-                          width: 100, height: 100, fit: BoxFit.cover)
-                      : null,
+                      'Dirección: ${emprendimiento['direccion']}\nDistancia: $distanciaStr'),
                   onTap: () async {
                     try {
                       final emprendimientoDetails =
                           await fetchEmprendimientoDetails(
-                              comida['emprendimiento_id']);
+                              emprendimiento['id']);
                       Navigator.push(
                           context,
                           MaterialPageRoute(

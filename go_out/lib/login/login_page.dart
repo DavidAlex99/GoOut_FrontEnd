@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'signup_page.dart';
 import 'auth_service.dart'; // Asegúrate de tener este archivo y clase implementados
 import 'session_manager.dart'; // Asegúrate de tener este archivo y clase implementados
-import '../emprendimientosAll/emprendimientos_page.dart';
+import '../emprendimientosAll/emprendimientosAll_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override

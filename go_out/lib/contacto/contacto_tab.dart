@@ -7,15 +7,15 @@ import 'dart:math';
 class ContactoTab extends StatefulWidget {
   final Map emprendimiento;
 
-  ContactoTab({required this.emprendimiento});
+  ContactoTab({Key? key, required this.emprendimiento}) : super(key: key);
 
   @override
   _ContactoTabState createState() => _ContactoTabState();
 }
 
 class _ContactoTabState extends State<ContactoTab> {
-  GoogleMapController? mapController;
-  // para arcar la ubicacion del cliente
+  late GoogleMapController mapController;
+  // para arrancar la ubicacion del cliente
   Set<Marker> markers = {};
 
   @override
@@ -93,53 +93,57 @@ class _ContactoTabState extends State<ContactoTab> {
 
   @override
   Widget build(BuildContext context) {
+    final contacto = widget.emprendimiento['contacto'];
+    final lat = contacto['latitud'];
+    final lng = contacto['longitud'];
+
     return SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 300.0,
-            child: GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: LatLng(widget.emprendimiento['contacto']['latitud'],
-                    widget.emprendimiento['contacto']['longitud']),
-                zoom: 16.0,
+          if (lat != null && lng != null)
+            Container(
+              height: 250,
+              child: GoogleMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(lat, lng),
+                  zoom: 16.0,
+                ),
+                markers: markers,
               ),
-              markers: markers,
             ),
-          ),
           ElevatedButton(
             onPressed: _getUserLocation,
             child: Text('Mostrar mi ubicación'),
           ),
-          // Las siguientes ListTiles son iguales que en tu código anterior.
           ListTile(
-            title: Text('Dirección:'),
-            subtitle: Text(widget.emprendimiento['contacto']['direccion'] ??
-                'No disponible'),
             leading: Icon(Icons.location_on),
+            title: Text('Dirección'),
+            subtitle: Text(contacto['direccion'] ?? 'No disponible'),
           ),
           ListTile(
-            title: Text('Teléfono:'),
-            subtitle: Text(widget.emprendimiento['contacto']['telefono'] ??
-                'No disponible'),
             leading: Icon(Icons.phone),
+            title: Text('Teléfono'),
+            subtitle: Text(contacto['telefono'] ?? 'No disponible'),
           ),
           ListTile(
-            title: Text('Correo Electrónico:'),
-            subtitle: Text(
-                widget.emprendimiento['contacto']['correo'] ?? 'No disponible'),
             leading: Icon(Icons.email),
+            title: Text('Correo Electrónico'),
+            subtitle: Text(contacto['correo'] ?? 'No disponible'),
           ),
-          for (var img
-              in widget.emprendimiento['contacto']['imagenesContacto'] ?? [])
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Image.network(
-                img['imagen'],
-                fit: BoxFit.cover,
-              ),
+          // Imágenes de contacto si existen
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Imágenes de contacto',
+              style: Theme.of(context).textTheme.headline6,
             ),
+          ),
+          ...?contacto['imagenesContacto']?.map((img) => Image.network(
+                'http://192.168.100.6:8000${img['imagen']}',
+                fit: BoxFit.cover,
+              )),
         ],
       ),
     );
