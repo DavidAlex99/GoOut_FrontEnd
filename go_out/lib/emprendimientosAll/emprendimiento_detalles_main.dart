@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../sobreNos/sobre_nosotros_tab.dart'; // Asegúrate de crear este archivo.
-import '../comidas/menu_tab.dart'; // Asegúrate de crear este archivo.
-import '../eventos/eventos_tab.dart'; // Asegúrate de crear este archivo.
-import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
+import '../sobreNos/sobre_nosotros_tab.dart';
+import '../comidas/menu_tab.dart';
+import '../eventos/eventos_tab.dart';
+import '../contacto/contacto_tab.dart';
+import '../buzonQueja/quejas_tab.dart';
 
 class EmprendimientoDetallesPage extends StatefulWidget {
   final Map emprendimiento;
@@ -20,7 +21,7 @@ class _EmprendimientoDetallesPageState
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4, // Número de secciones
+      length: 5, // Número de secciones
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -31,6 +32,7 @@ class _EmprendimientoDetallesPageState
               Tab(text: 'Menú'),
               Tab(text: 'Eventos'),
               Tab(text: 'Contacto'),
+              Tab(icon: Icon(Icons.report_problem)),
             ],
           ),
         ),
@@ -41,6 +43,7 @@ class _EmprendimientoDetallesPageState
             EventosTab(emprendimiento: widget.emprendimiento),
             // aqui se accede a la seccio de contacto
             ContactoTab(emprendimiento: widget.emprendimiento),
+            QuejasTab(emprendimiento: widget.emprendimiento),
           ],
         ),
       ),

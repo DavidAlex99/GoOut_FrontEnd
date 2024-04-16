@@ -87,7 +87,7 @@ class _ContactoTabState extends State<ContactoTab> {
     );
 
     // Ajustar la cámara para mostrar ambos marcadores
-    mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
+    mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
   }
   // fin obtener permiso ubicacion del cliente
 
