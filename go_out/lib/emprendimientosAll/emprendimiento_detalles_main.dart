@@ -4,6 +4,7 @@ import '../comidas/menu_tab.dart';
 import '../eventos/eventos_tab.dart';
 import '../contacto/contacto_tab.dart';
 import '../buzonQueja/quejas_tab.dart';
+import '../resenas/resenas_tab.dart';
 
 class EmprendimientoDetallesPage extends StatefulWidget {
   final Map emprendimiento;
@@ -21,7 +22,7 @@ class _EmprendimientoDetallesPageState
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5, // Número de secciones
+      length: 6, // Número de secciones
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -32,6 +33,7 @@ class _EmprendimientoDetallesPageState
               Tab(text: 'Menú'),
               Tab(text: 'Eventos'),
               Tab(text: 'Contacto'),
+              Tab(text: 'Deja tu opinión'),
               Tab(icon: Icon(Icons.report_problem)),
             ],
           ),
@@ -41,8 +43,8 @@ class _EmprendimientoDetallesPageState
             SobreNosotrosTab(emprendimiento: widget.emprendimiento),
             MenuTab(emprendimiento: widget.emprendimiento),
             EventosTab(emprendimiento: widget.emprendimiento),
-            // aqui se accede a la seccio de contacto
             ContactoTab(emprendimiento: widget.emprendimiento),
+            ResenasTab(emprendimiento: widget.emprendimiento),
             QuejasTab(emprendimiento: widget.emprendimiento),
           ],
         ),
