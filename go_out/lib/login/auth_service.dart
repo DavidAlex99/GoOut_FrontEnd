@@ -60,4 +60,23 @@ class AuthService {
       return null;
     }
   }
+
+  // En tu archivo auth_service.dart
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('auth_token');
+    if (token != null) {
+      // Realizar la petición de cierre de sesión al servidor
+      final response = await http.post(
+        Uri.parse('$baseUrl/logout/'),
+        headers: {
+          'Authorization': 'Token $token',
+        },
+      );
+      // Verificar la respuesta aquí si es necesario
+    }
+    // Eliminar el token del almacenamiento local independientemente de la respuesta del servidor
+    await prefs.remove('auth_token');
+  }
 }

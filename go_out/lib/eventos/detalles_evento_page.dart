@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../login/auth_service.dart';
+import '../login/login_page.dart';
 
 class DetalleEventoPage extends StatefulWidget {
   final Map evento;
@@ -77,14 +79,25 @@ class _DetalleEventoPageState extends State<DetalleEventoPage> {
     }
   }
 
+  void _logout() async {
+    await AuthService().logout(); // Solo llama al método de cerrar sesión
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+          builder: (context) => LoginPage()), // Redirige al LoginPage
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List imagenesEvento = widget.evento['imagenesEvento'] ?? [];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.evento['titulo']),
-      ),
+      appBar: AppBar(title: Text(widget.evento['titulo']), actions: [
+        IconButton(
+          icon: Icon(Icons.exit_to_app),
+          onPressed: _logout,
+        ),
+      ]),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),

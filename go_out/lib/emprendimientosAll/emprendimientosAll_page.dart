@@ -8,6 +8,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart';
 import './comidas_page.dart';
 import './eventos_page.dart';
+import '../login/auth_service.dart';
+import '../login/login_page.dart';
 
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
@@ -133,6 +135,14 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
     );
   }
 
+  void _logout() async {
+    await AuthService().logout(); // Solo llama al método de cerrar sesión
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+          builder: (context) => LoginPage()), // Redirige al LoginPage
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,6 +194,10 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
                 MaterialPageRoute(builder: (context) => EventosPage()),
               );
             },
+          ),
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: _logout,
           ),
         ],
       ),
