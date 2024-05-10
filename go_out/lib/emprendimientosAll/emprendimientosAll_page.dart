@@ -11,6 +11,7 @@ import './eventos_page.dart';
 import '../login/auth_service.dart';
 import '../login/login_page.dart';
 
+// Metodo para obtener el objeto emprendimiento del emprendimiento que se ha selecciona de a lista de emprendimiento
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('auth_token');
@@ -28,6 +29,7 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
     throw Exception('Failed to load emprendimiento details');
   }
 }
+// Fin metodo para obtener el objeto emprendimiento del emprendimiento que se ha selecciona de a lista de emprendimiento
 
 class EmprendimientosPage extends StatefulWidget {
   final String userId;
@@ -38,6 +40,37 @@ class EmprendimientosPage extends StatefulWidget {
   _EmprendimientosPageState createState() => _EmprendimientosPageState();
 }
 
+class EstrellasCalificacion extends StatelessWidget {
+  final double promedioCalificacion;
+
+  EstrellasCalificacion({required this.promedioCalificacion});
+
+  @override
+  Widget build(BuildContext context) {
+    // Total de estrellas
+    int totalEstrellas = 5;
+
+    // Cálculo de las estrellas llenas, medias y vacías
+    int estrellasLlenas = promedioCalificacion.floor();
+    bool tieneMediaEstrella = (promedioCalificacion - estrellasLlenas) >= 0.5;
+    int estrellasVacias =
+        totalEstrellas - estrellasLlenas - (tieneMediaEstrella ? 1 : 0);
+
+    return Row(
+      children: [
+        // Estrellas llenas
+        for (int i = 0; i < estrellasLlenas; i++)
+          Icon(Icons.star, color: Colors.amber),
+        // Media estrella, si corresponde
+        if (tieneMediaEstrella) Icon(Icons.star_half, color: Colors.amber),
+        // Estrellas vacías
+        for (int i = 0; i < estrellasVacias; i++)
+          Icon(Icons.star_border, color: Colors.amber),
+      ],
+    );
+  }
+}
+
 class _EmprendimientosPageState extends State<EmprendimientosPage> {
   String selectedCategory = 'Todos';
   bool loading = false;
@@ -46,6 +79,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
   @override
   void initState() {
     super.initState();
+    // Carga de todos los emprendimientos
     fetchEmprendimientosInicial();
   }
 
@@ -75,6 +109,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
     }
   }
 
+  // Metodo para calcular la distancia hacia el emprendimiento basado en la altitud y en la longitud del emprendimiento de su seccion contacto
   fetchEmprendimientosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
@@ -115,6 +150,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
       _showLocationPermissionDialog();
     }
   }
+  // Fin metodo para calcular la distancia hacia el emprendimiento basado en la altitud y en la longitud del emprendimiento de su seccion contacto
 
   void _showLocationPermissionDialog() {
     showDialog(
@@ -217,14 +253,30 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
                     height: 100,
                     fit: BoxFit.cover,
                   ),
-                  title: Text(emprendimiento['nombre']),
-                  subtitle: Text(
-                      'Dirección: ${emprendimiento['direccion']}\nDistancia: $distanciaStr'),
+                  title: Text('${emprendimiento['nombre']}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          'Dirección: ${(emprendimiento['contacto']?['direccion'] ?? 'No disponible')} y ${(emprendimiento['contacto']?['direccion_secundaria'] ?? 'No disponible')}'),
+                      Text('Distancia: $distanciaStr'),
+                      // Muestra el widget de estrellas aquí
+                      EstrellasCalificacion(
+                        promedioCalificacion:
+                            (emprendimiento['promedio_calificacion'] ?? 0)
+                                .toDouble(),
+                      )
+                    ],
+                  ),
                   onTap: () async {
                     try {
                       final emprendimientoDetails =
                           await fetchEmprendimientoDetails(
                               emprendimiento['id']);
+                      print('Nombre: ${emprendimientoDetails['nombre']}');
+                      print('comidas: ${emprendimientoDetails['comidas']}');
+                      print('eventos: ${emprendimientoDetails['eventos']}');
+                      print('Contacto: ${emprendimientoDetails['contacto']}');
                       Navigator.push(
                           context,
                           MaterialPageRoute(

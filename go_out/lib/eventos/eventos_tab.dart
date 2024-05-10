@@ -10,6 +10,16 @@ class EventosTab extends StatelessWidget {
   Widget build(BuildContext context) {
     List<dynamic> eventos = emprendimiento['eventos'] ?? [];
 
+    if (eventos.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay información disponible en la sección Eventos.',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return ListView.builder(
       itemCount: eventos.length,
       itemBuilder: (context, index) {

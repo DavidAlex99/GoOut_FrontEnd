@@ -31,15 +31,21 @@ class SobreNosotrosTab extends StatelessWidget {
               style: Theme.of(context).textTheme.headline6,
             ),
             SizedBox(height: 10.0),
-            ...imagenesSobreNos.map((imagen) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Image.network(
-                  'http://192.168.100.6:8000${imagen['imagen']}',
-                  fit: BoxFit.cover,
-                ),
-              );
-            }).toList(),
+            if (imagenesSobreNos.isEmpty)
+              Text(
+                'No hay imágenes disponibles en la galería.',
+                style: Theme.of(context).textTheme.bodyText2,
+              )
+            else
+              ...imagenesSobreNos.map((imagen) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Image.network(
+                    'http://192.168.100.6:8000${imagen['imagen']}',
+                    fit: BoxFit.cover,
+                  ),
+                );
+              }).toList(),
           ],
         ),
       ),

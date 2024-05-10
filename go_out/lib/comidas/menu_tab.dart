@@ -10,6 +10,17 @@ class MenuTab extends StatelessWidget {
   Widget build(BuildContext context) {
     List<dynamic> comidas = emprendimiento['comidas'] ?? [];
 
+    // Verifica si la lista está vacía
+    if (comidas.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay información disponible en la sección Menú.',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return ListView.builder(
       itemCount: comidas.length,
       itemBuilder: (context, index) {

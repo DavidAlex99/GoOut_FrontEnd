@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl =
-      'http://192.168.100.6:8000/goOutApp'; // Reemplaza esto por la URL real de tu backen
+  final String baseUrl = 'http://192.168.100.6:8000/goOutApp';
 
   // Método para guardar el token
   Future<void> _saveToken(String token) async {
@@ -60,8 +59,6 @@ class AuthService {
       return null;
     }
   }
-
-  // En tu archivo auth_service.dart
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();

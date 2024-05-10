@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:math';
+import './contacto_form.dart';
 
 class ContactoTab extends StatefulWidget {
   final Map emprendimiento;
@@ -23,9 +24,9 @@ class _ContactoTabState extends State<ContactoTab> {
     super.initState();
     // Inicializar el marcador del emprendimiento desde el inicio.
     final latitud =
-        double.tryParse('${widget.emprendimiento['contacto']['latitud']}');
+        double.tryParse('${widget.emprendimiento['contacto']?['latitud']}');
     final longitud =
-        double.tryParse('${widget.emprendimiento['contacto']['longitud']}');
+        double.tryParse('${widget.emprendimiento['contacto']?['longitud']}');
     if (latitud != null && longitud != null) {
       markers.add(Marker(
         markerId: MarkerId("emprendimientoLocation"),
@@ -70,8 +71,9 @@ class _ContactoTabState extends State<ContactoTab> {
 
     // Ubicación del emprendimiento.
     final LatLng emprendimientoLocation = LatLng(
-        double.tryParse('${widget.emprendimiento['contacto']['latitud']}') ?? 0,
-        double.tryParse('${widget.emprendimiento['contacto']['longitud']}') ??
+        double.tryParse('${widget.emprendimiento['contacto']?['latitud']}') ??
+            0,
+        double.tryParse('${widget.emprendimiento['contacto']?['longitud']}') ??
             0);
 
     // Crear LatLngBounds
@@ -93,7 +95,7 @@ class _ContactoTabState extends State<ContactoTab> {
 
   @override
   Widget build(BuildContext context) {
-    final contacto = widget.emprendimiento['contacto'];
+    final contacto = widget.emprendimiento['contacto'] ?? {};
     final lat = contacto['latitud'];
     final lng = contacto['longitud'];
 
@@ -112,6 +114,16 @@ class _ContactoTabState extends State<ContactoTab> {
                 ),
                 markers: markers,
               ),
+            )
+          else
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Ubicación no disponible.',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ElevatedButton(
             onPressed: _getUserLocation,
@@ -127,11 +139,6 @@ class _ContactoTabState extends State<ContactoTab> {
             title: Text('Teléfono'),
             subtitle: Text(contacto['telefono'] ?? 'No disponible'),
           ),
-          ListTile(
-            leading: Icon(Icons.email),
-            title: Text('Correo Electrónico'),
-            subtitle: Text(contacto['correo'] ?? 'No disponible'),
-          ),
           // Imágenes de contacto si existen
           Padding(
             padding: EdgeInsets.all(8.0),
@@ -140,10 +147,36 @@ class _ContactoTabState extends State<ContactoTab> {
               style: Theme.of(context).textTheme.headline6,
             ),
           ),
-          ...?contacto['imagenesContacto']?.map((img) => Image.network(
-                'http://192.168.100.6:8000${img['imagen']}',
-                fit: BoxFit.cover,
-              )),
+          if (contacto['imagenesContacto'] != null &&
+              (contacto['imagenesContacto'] as List).isNotEmpty)
+            ...contacto['imagenesContacto']
+                .map((img) => Image.network(
+                      'http://192.168.100.6:8000${img['imagen']}',
+                      fit: BoxFit.cover,
+                    ))
+                .toList()
+          else
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'No hay imágenes de contacto disponibles.',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      FormularioContactoPage(), // Navega a la nueva página
+                ),
+              );
+            },
+            child: Text('Enviar mensaje al emprendimiento'),
+          ),
         ],
       ),
     );

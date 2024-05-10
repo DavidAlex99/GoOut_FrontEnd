@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'session_manager.dart';
-import '../emprendimientosAll/emprendimientos_page.dart';
+import '../emprendimientosAll/emprendimientosAll_page.dart';
 
 class SignupPage extends StatefulWidget {
   @override
