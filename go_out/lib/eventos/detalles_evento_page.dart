@@ -48,7 +48,7 @@ class _DetalleEventoPageState extends State<DetalleEventoPage> {
       }
 
       final response = await http.post(
-        Uri.parse("http://192.168.100.6:8000/goOutApp/reservas/crear/"),
+        Uri.parse("https://chillx.onrender.com/goOutApp/reservas/crear/"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',
@@ -106,7 +106,7 @@ class _DetalleEventoPageState extends State<DetalleEventoPage> {
             children: [
               if (imagenesEvento.isNotEmpty)
                 Image.network(
-                  'http://192.168.100.6:8000${imagenesEvento[0]['imagen']}',
+                  imagenesEvento[0]['imagen'],
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,

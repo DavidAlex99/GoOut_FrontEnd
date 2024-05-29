@@ -29,14 +29,14 @@ class _ResenasTabState extends State<ResenasTab> {
     });
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String? token = prefs.getString('auth_token');
+      final String? token = prefs.getString('token');
       if (token == null) {
         throw Exception('Authentication token is not available.');
       }
 
       final response = await http.get(
         Uri.parse(
-            "http://192.168.100.6:8000/goOutApp/emprendimientos/${widget.emprendimiento['id']}/reseñas/"),
+            "https://chillx.onrender.com/goOutApp/emprendimientos/${widget.emprendimiento['id']}/resenas/"),
         headers: {'Authorization': 'Bearer $token'},
       );
 

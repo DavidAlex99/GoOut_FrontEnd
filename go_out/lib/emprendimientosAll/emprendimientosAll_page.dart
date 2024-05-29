@@ -14,13 +14,16 @@ import '../login/login_page.dart';
 // Metodo para obtener el objeto emprendimiento del emprendimiento que se ha selecciona de a lista de emprendimiento
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
-  final String? token = prefs.getString('auth_token');
+  final String? token = prefs.getString('token');
 
   final String url =
-      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
+      'https://chillx.onrender.com/goOutApp/emprendimientos/$emprendimientoId';
+
   final response = await http.get(
     Uri.parse(url),
-    headers: token != null ? {'Authorization': 'Token $token'} : {},
+    headers: {
+      'Authorization': 'Token $token', // Añadir el encabezado de autorización
+    },
   );
 
   if (response.statusCode == 200) {
@@ -85,12 +88,29 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
 
   fetchEmprendimientosInicial() async {
     try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token =
+          prefs.getString('token'); // Obtener el token de SharedPreferences
+      print('token en fetchEmprendimientosInicial:');
+      print(token);
+
       setState(() {
         loading = true;
       });
-      final url = 'http://192.168.100.6:8000/goOutApp/emprendimientos' +
+      final url = 'https://chillx.onrender.com/goOutApp/emprendimientos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
-      final response = await http.get(Uri.parse(url));
+
+      /*final url = 'http://172.19.61.234:8000/goOutApp/emprendimientos' +
+          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');*/
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':
+              'Token $token', // Añadir el encabezado de autorización
+        },
+      );
 
       if (response.statusCode == 200) {
         setState(() {
@@ -123,14 +143,38 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
         });
         final position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
-        final uri = Uri.http(
-            '192.168.100.6:8000', '/goOutApp/emprendimientos/cercanos', {
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('token'); // Obtener el token guardado
+
+        if (token == null) {
+          throw Exception('Authentication token not available');
+        }
+
+        print('token en fetchEmprendimientosCercanos');
+        print(token);
+
+        final uri = Uri.https(
+            'chillx.onrender.com', '/goOutApp/emprendimientos/cercanos/', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
         });
 
-        final response = await http.get(uri);
+        /*final uri = Uri.http(
+            '172.19.61.234:8000', '/goOutApp/emprendimientos/cercanos', {
+          'lat': position.latitude.toString(),
+          'lon': position.longitude.toString(),
+          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
+        });*/
+
+        final response = await http.get(
+          uri,
+          headers: {
+            'Authorization':
+                'Token $token', // Incluir el token en los encabezados
+          },
+        );
 
         if (response.statusCode == 200) {
           setState(() {

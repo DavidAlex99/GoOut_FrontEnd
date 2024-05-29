@@ -20,7 +20,7 @@ class _FormularioContactoPageState extends State<FormularioContactoPage> {
     // Llama a tu API para enviar el mensaje al emprendimiento
     final response = await http.post(
       Uri.parse(
-          'http://192.168.100.6:8000/goOutApp/emprendimientos/<int:pk_emprendimiento>/formulario_contacto/'),
+          'https://chillx.onrender.com/goOutApp/emprendimientos/<int:pk_emprendimiento>/formulario_contacto/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nombre': nombre,

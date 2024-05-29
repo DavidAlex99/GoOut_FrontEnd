@@ -8,10 +8,13 @@ import 'package:permission_handler/permission_handler.dart';
 
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
-  final String? token = prefs.getString('auth_token');
+  final String? token = prefs.getString('token');
 
+  /*final String url =
+      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';*/
   final String url =
-      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
+      'https://chillx.onrender.com/goOutApp/emprendimientos/$emprendimientoId';
+
   final response = await http.get(
     Uri.parse(url),
     headers: token != null
@@ -46,31 +49,48 @@ class _EventosPageState extends State<EventosPage> {
 
   // Método inicial que muestra los eventos sin filtro de distancia
   fetchEventosInicial() async {
-    setState(() {
-      loading = true;
-    });
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token =
+          prefs.getString('token'); // Obtener el token de SharedPreferences
+      print('token en fetchEventoInicial:');
+      print(token);
 
-    var url = 'http://192.168.100.6:8000/goOutApp/eventos';
-    if (selectedCategory != 'Todos') {
-      url += '?categoria=$selectedCategory';
-    }
-
-    var response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
       setState(() {
-        eventos = json.decode(response.body);
+        loading = true;
+      });
+      final url = 'https://chillx.onrender.com/goOutApp/comidas' +
+          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
+      /*final url = 'http://172.19.61.234:8000/goOutApp/eventos' +
+          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');*/
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':
+              'Token $token', // Añadir el encabezado de autorización
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          eventos = json.decode(response.body);
+        });
+      } else {
+        throw Exception('Failed to load eventos');
+      }
+    } catch (e) {
+      print('Error fetching comidas: $e');
+    } finally {
+      setState(() {
         loading = false;
       });
-    } else {
-      setState(() {
-        loading = false;
-      });
-      print('Failed to load eventos');
     }
   }
 
   // Método que muestra los eventos con filtro de distancia
-  Future<void> fetchEventosCercanos() async {
+  fetchEventosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -81,38 +101,56 @@ class _EventosPageState extends State<EventosPage> {
         setState(() {
           loading = true;
         });
-        Position position = await Geolocator.getCurrentPosition(
+        final position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
 
-        var queryParams = {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('token'); // Obtener el token guardado
+
+        if (token == null) {
+          throw Exception('Authentication token not available');
+        }
+
+        print('token en fetchEvetosCercanos');
+        print(token);
+
+        /*final uri =
+            Uri.http('192.168.100.6:8000', '/goOutApp/comidas/cercanas', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
-        };
-        var uri = Uri.http(
-            '192.168.100.6:8000', '/goOutApp/eventos/cercanos', queryParams);
+        });*/
 
-        final response = await http.get(uri);
+        final uri =
+            Uri.https('chillx.onrender.com', '/goOutApp/eventos/cercanos/', {
+          'lat': position.latitude.toString(),
+          'lon': position.longitude.toString(),
+          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
+        });
+
+        final response = await http.get(
+          uri,
+          headers: {
+            'Authorization':
+                'Token $token', // Incluir el token en los encabezados
+          },
+        );
 
         if (response.statusCode == 200) {
           setState(() {
             eventos = json.decode(response.body);
-            loading = false;
           });
         } else {
-          setState(() {
-            loading = false;
-          });
-          // Manejar el error de carga
+          throw Exception('Failed to load eventos with distances');
         }
       } catch (e) {
+        print('Error fetching comidas with distances: $e');
+      } finally {
         setState(() {
           loading = false;
         });
-        // Manejar el error
       }
     } else {
-      // Manejar el caso en que el usuario no otorga permiso
       _showLocationPermissionDialog();
     }
   }
@@ -181,7 +219,7 @@ class _EventosPageState extends State<EventosPage> {
                     ? "${evento['distancia'].toStringAsFixed(2)} km"
                     : "Distancia no disponible";
                 return ListTile(
-                  title: Text(evento['titulo']),
+                  title: Text(evento['titulo'] ?? 'No disponible'),
                   subtitle: Text(
                       '${evento['descripcion']} - \$${evento['precio']} - Distancia: $distanciaStr'),
                   leading: evento['imagen'] != null

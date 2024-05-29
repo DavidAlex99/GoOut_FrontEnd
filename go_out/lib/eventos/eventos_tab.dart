@@ -26,7 +26,7 @@ class EventosTab extends StatelessWidget {
         var evento = eventos[index];
         var imagenesEvento = evento['imagenesEvento'] ?? [];
         var imagenUrl = imagenesEvento.isNotEmpty
-            ? 'http://192.168.100.6:8000${imagenesEvento[0]['imagen']}'
+            ? imagenesEvento[0]['imagen']
             : 'https://via.placeholder.com/150'; // Imagen por defecto si no hay imágenes
 
         return Card(
@@ -45,13 +45,21 @@ class EventosTab extends StatelessWidget {
                   },
                 ),
               ),
-              if (imagenesEvento.isNotEmpty)
-                Image.network(
-                  imagenUrl,
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                ),
+              if (imagenesEvento.isEmpty)
+                Text(
+                  'No hay imágenes disponibles en la galería.',
+                  style: Theme.of(context).textTheme.bodyText2,
+                )
+              else
+                ...imagenesEvento.map((imagen) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Image.network(
+                      imagen['imagen'],
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                }).toList(),
             ],
           ),
         );

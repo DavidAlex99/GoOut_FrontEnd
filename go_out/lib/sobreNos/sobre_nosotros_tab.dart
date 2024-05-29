@@ -41,7 +41,7 @@ class SobreNosotrosTab extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Image.network(
-                    'http://192.168.100.6:8000${imagen['imagen']}',
+                    imagen['imagen'],
                     fit: BoxFit.cover,
                   ),
                 );

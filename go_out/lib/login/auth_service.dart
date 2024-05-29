@@ -3,17 +3,19 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl = 'http://192.168.100.6:8000/goOutApp';
+  final String baseUrl = 'https://chillx.onrender.com/goOutApp';
+  //final String baseUrl = 'http://172.19.61.234:8000/goOutApp';
 
   // Método para guardar el token
   Future<void> _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_token', token);
+    await prefs.setString('token', token);
+    print('Token saved: $token'); // Imprime el token para verificar
   }
 
   Future<String?> login(String username, String password) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api-token-auth/'),
+      Uri.parse('$baseUrl/loginCli/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -26,6 +28,8 @@ class AuthService {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       String token = responseData['token'];
+      print('token en login:');
+      print(token);
       await _saveToken(token); // Guardar el token
       return token;
     } else {
@@ -53,6 +57,8 @@ class AuthService {
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
       String token = responseData['token'];
+      print('token en register:');
+      print(token);
       await _saveToken(token); // Guardar el token
       return token;
     } else {
@@ -62,7 +68,7 @@ class AuthService {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('auth_token');
+    final String? token = prefs.getString('token');
     if (token != null) {
       // Realizar la petición de cierre de sesión al servidor
       final response = await http.post(
@@ -74,6 +80,6 @@ class AuthService {
       // Verificar la respuesta aquí si es necesario
     }
     // Eliminar el token del almacenamiento local independientemente de la respuesta del servidor
-    await prefs.remove('auth_token');
+    await prefs.remove('token');
   }
 }

@@ -80,7 +80,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             TextField(
               controller: _firstNameController,
-              decoration: InputDecoration(labelText: 'ombre'),
+              decoration: InputDecoration(labelText: 'Nombre'),
             ),
             TextField(
               controller: _lastNameController,

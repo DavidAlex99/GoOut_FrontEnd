@@ -17,7 +17,7 @@ class ComidaDetallesPage extends StatelessWidget {
           children: <Widget>[
             comida['imagen'] != null
                 ? Image.network(
-                    'http://192.168.100.6:8000${comida['imagen']}',
+                    comida['imagen'],
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
