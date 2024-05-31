@@ -17,7 +17,7 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final String? token = prefs.getString('token');
 
   final String url =
-      'https://chillx.onrender.com/goOutApp/emprendimientos/$emprendimientoId';
+      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
 
   final response = await http.get(
     Uri.parse(url),
@@ -97,7 +97,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
       setState(() {
         loading = true;
       });
-      final url = 'https://chillx.onrender.com/goOutApp/emprendimientos' +
+      final url = 'http://192.168.100.6:8000/goOutApp/emprendimientos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
 
       /*final url = 'http://172.19.61.234:8000/goOutApp/emprendimientos' +
@@ -155,7 +155,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
         print(token);
 
         final uri = Uri.https(
-            'chillx.onrender.com', '/goOutApp/emprendimientos/cercanos/', {
+            '192.168.100.6:8000', '/goOutApp/emprendimientos/cercanos/', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
@@ -290,6 +290,11 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
                 final distanciaStr = emprendimiento['distancia'] != null
                     ? "${emprendimiento['distancia'].toStringAsFixed(2)} km"
                     : "Distance not available";
+                final promedioCalificaciones =
+                    emprendimiento['promedio_calificaciones'] ?? 0;
+                String promedioTexto = promedioCalificaciones != null
+                    ? promedioCalificaciones.toStringAsFixed(1)
+                    : "Sin reseñas";
                 return ListTile(
                   leading: Image.network(
                     emprendimiento['imagen'],
@@ -304,7 +309,8 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
                       Text(
                           'Dirección: ${(emprendimiento['contacto']?['direccion'] ?? 'No disponible')} y ${(emprendimiento['contacto']?['direccion_secundaria'] ?? 'No disponible')}'),
                       Text('Distancia: $distanciaStr'),
-                      // Muestra el widget de estrellas aquí
+                      Text(
+                          'Dirección: ${emprendimiento['direccion']}\nCalificación Promedio: $promedioTexto'),
                       EstrellasCalificacion(
                         promedioCalificacion:
                             (emprendimiento['promedio_calificacion'] ?? 0)

@@ -40,15 +40,18 @@ class _ResenaFormPageState extends State<ResenaFormPage> {
     });
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? token = prefs.getString('token');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      print('token en _enviarResena:');
+      print(token);
+
       if (token == null) {
         throw Exception('Authentication token is not available.');
       }
 
       final response = await http.post(
         Uri.parse(
-            "https://chillx.onrender.com/goOutApp/emprendimientos/${widget.emprendimientoId}/resena/"),
+            "http://192.168.100.6:8000/goOutApp/emprendimientos/${widget.emprendimientoId}/resena/"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',

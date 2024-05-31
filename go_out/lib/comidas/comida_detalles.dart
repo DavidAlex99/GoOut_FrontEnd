@@ -17,12 +17,12 @@ class ComidaDetallesPage extends StatelessWidget {
           children: <Widget>[
             comida['imagen'] != null
                 ? Image.network(
-                    comida['imagen'],
+                    'http://192.168.100.6:8000${comida['imagen']}',
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
                   )
-                : SizedBox(height: 300), // Un placeholder o espacio vacío
+                : SizedBox(height: 300),
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(

@@ -13,7 +13,7 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   /*final String url =
       'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';*/
   final String url =
-      'https://chillx.onrender.com/goOutApp/emprendimientos/$emprendimientoId';
+      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
 
   final response = await http.get(
     Uri.parse(url),
@@ -59,7 +59,7 @@ class _EventosPageState extends State<EventosPage> {
       setState(() {
         loading = true;
       });
-      final url = 'https://chillx.onrender.com/goOutApp/comidas' +
+      final url = 'http://192.168.100.6:8000/goOutApp/eventos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
       /*final url = 'http://172.19.61.234:8000/goOutApp/eventos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');*/
@@ -122,7 +122,7 @@ class _EventosPageState extends State<EventosPage> {
         });*/
 
         final uri =
-            Uri.https('chillx.onrender.com', '/goOutApp/eventos/cercanos/', {
+            Uri.https('192.168.100.6:8000', '/goOutApp/eventos/cercanos/', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,

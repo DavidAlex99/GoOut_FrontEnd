@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl = 'https://chillx.onrender.com/goOutApp';
+  final String baseUrl = 'http://192.168.100.6:8000/goOutApp';
   //final String baseUrl = 'http://172.19.61.234:8000/goOutApp';
 
   // Método para guardar el token
@@ -72,7 +72,7 @@ class AuthService {
     if (token != null) {
       // Realizar la petición de cierre de sesión al servidor
       final response = await http.post(
-        Uri.parse('$baseUrl/logout/'),
+        Uri.parse('$baseUrl/logoutCli/'),
         headers: {
           'Authorization': 'Token $token',
         },

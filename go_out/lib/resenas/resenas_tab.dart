@@ -28,16 +28,24 @@ class _ResenasTabState extends State<ResenasTab> {
       _isLoading = true;
     });
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? token = prefs.getString('token');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token =
+          prefs.getString('token'); // Obtener el token de SharedPreferences
+      print('token en _fetchResenas:');
+      print(token);
+
       if (token == null) {
         throw Exception('Authentication token is not available.');
       }
 
       final response = await http.get(
         Uri.parse(
-            "https://chillx.onrender.com/goOutApp/emprendimientos/${widget.emprendimiento['id']}/resenas/"),
-        headers: {'Authorization': 'Bearer $token'},
+            "http://192.168.100.6:8000/goOutApp/emprendimientos/${widget.emprendimiento['id']}/resenas/"),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':
+              'Token $token', // Añadir el encabezado de autorización
+        },
       );
 
       if (response.statusCode == 200) {
