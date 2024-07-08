@@ -98,6 +98,8 @@ class _ContactoTabState extends State<ContactoTab> {
     final contacto = widget.emprendimiento['contacto'] ?? {};
     final lat = contacto['latitud'];
     final lng = contacto['longitud'];
+    print("imageenes de contacto");
+    print(contacto['imagenesContacto']);
 
     return SingleChildScrollView(
       child: Column(
@@ -144,7 +146,7 @@ class _ContactoTabState extends State<ContactoTab> {
             padding: EdgeInsets.all(8.0),
             child: Text(
               'Imágenes de contacto',
-              style: Theme.of(context).textTheme.headline6,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
           ),
           if (contacto['imagenesContacto'] != null &&
@@ -152,6 +154,7 @@ class _ContactoTabState extends State<ContactoTab> {
             ...contacto['imagenesContacto']
                 .map((img) => Image.network(
                       'http://192.168.100.6:8000${img['imagen']}',
+                      //'http://127.0.0.1:8000${img['imagen']}',
                       fit: BoxFit.cover,
                     ))
                 .toList()

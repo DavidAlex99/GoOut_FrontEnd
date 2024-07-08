@@ -48,6 +48,11 @@ class _QuejaFormPageState extends State<QuejaFormPage> {
       final response = await http.post(
         Uri.parse(
             "http://192.168.100.6:8000/goOutApp/emprendimientos/${widget.emprendimientoId}/crear_queja/"),
+
+        /*
+        Uri.parse(
+            "http://127.0.0.1:8000/goOutApp/emprendimientos/${widget.emprendimientoId}/crear_queja/"),
+        */
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',

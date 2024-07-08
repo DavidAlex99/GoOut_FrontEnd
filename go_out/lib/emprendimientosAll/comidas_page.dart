@@ -10,14 +10,19 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
 
-  /*final String url =
-      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';*/
+/*
+    final String url =
+      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
+*/
+
   final String url =
       'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
 
   final response = await http.get(
     Uri.parse(url),
-    headers: token != null ? {'Authorization': 'Token $token'} : {},
+    headers: {
+      'Authorization': 'Token $token', // Añadir el encabezado de autorización
+    },
   );
 
   if (response.statusCode == 200) {
@@ -43,7 +48,7 @@ class _ComidasPageState extends State<ComidasPage> {
     fetchComidasInicial();
   }
 
-  fetchComidasInicial() async {
+  Future<void> fetchComidasInicial() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token =
@@ -54,9 +59,11 @@ class _ComidasPageState extends State<ComidasPage> {
       setState(() {
         loading = true;
       });
-      /*final url = 'http://192.168.100.6:8000/goOutApp/comidas' +
-          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');*/
+      /*
       final url = 'http://192.168.100.6:8000/goOutApp/comidas' +
+          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
+      */
+      final url = 'http://127.0.0.1:8000/goOutApp/comidas' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
 
       final response = await http.get(
@@ -84,7 +91,7 @@ class _ComidasPageState extends State<ComidasPage> {
     }
   }
 
-  fetchComidasCercanas() async {
+  Future<void> fetchComidasCercanas() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -108,13 +115,6 @@ class _ComidasPageState extends State<ComidasPage> {
         print('token en fetchComidasCercanos');
         print(token);
 
-        /*final uri =
-            Uri.http('192.168.100.6:8000', '/goOutApp/comidas/cercanas', {
-          'lat': position.latitude.toString(),
-          'lon': position.longitude.toString(),
-          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
-        });*/
-
         final uri =
             Uri.https('192.168.100.6:8000', '/goOutApp/comidas/cercanas/', {
           'lat': position.latitude.toString(),
@@ -122,11 +122,18 @@ class _ComidasPageState extends State<ComidasPage> {
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
         });
 
+        /*
+        final uri = Uri.http('127.0.0.1:8000', '/goOutApp/comidas/cercanas/', {
+          'lat': position.latitude.toString(),
+          'lon': position.longitude.toString(),
+          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
+        });
+        */
+
         final response = await http.get(
           uri,
           headers: {
-            'Authorization':
-                'Token $token', // Incluir el token en los encabezados
+            'Authorization': 'Token $token',
           },
         );
 
@@ -210,15 +217,28 @@ class _ComidasPageState extends State<ComidasPage> {
                 final comida = comidas[index];
                 final distanciaStr = comida['distancia'] != null
                     ? "${comida['distancia'].toStringAsFixed(2)} km"
-                    : "Distance not available";
+                    : "Filtre por la distancia";
+
                 return ListTile(
                   title: Text(comida['nombre']),
-                  subtitle: Text(
-                      '${comida['descripcion']} - \$${comida['precio']} - Distancia: $distanciaStr'),
-                  leading: comida['imagen'] != null
-                      ? Image.network(comida['imagen'],
-                          width: 100, height: 100, fit: BoxFit.cover)
-                      : null,
+                  subtitle: Row(
+                    children: [
+                      // Imagen de previsualización del evento
+                      Image.network(comida['imagen'],
+                          width: 100, height: 100, fit: BoxFit.cover),
+                      // Detalles del evento
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Local: ${comida['emprendimiento_nombre']}'),
+                            Text('Precio: ${comida['precio']}'),
+                            Text('Distancia: $distanciaStr'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                   onTap: () async {
                     try {
                       final emprendimientoDetails =

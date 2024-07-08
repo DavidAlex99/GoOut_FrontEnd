@@ -32,6 +32,7 @@ class MenuTab extends StatelessWidget {
             leading: comida['imagen'] != null
                 ? Image.network(
                     'http://192.168.100.6:8000${comida['imagen']}',
+                    //'http://127.0.0.1:8000${comida['imagen']}',
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,

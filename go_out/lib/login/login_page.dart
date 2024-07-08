@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
             builder: (context) => EmprendimientosPage(userId: userId)),
       );
     } else {
-      // Mostrar error
+      SnackBar(content: Text('Error de inicio de sesión'));
     }
   }
 

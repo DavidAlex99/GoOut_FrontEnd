@@ -10,10 +10,12 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
 
-  /*final String url =
-      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';*/
+  /*
   final String url =
       'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
+  */
+  final String url =
+      'http://127.0.0.1:8000/goOutApp/emprendimientos/$emprendimientoId';
 
   final response = await http.get(
     Uri.parse(url),
@@ -48,7 +50,7 @@ class _EventosPageState extends State<EventosPage> {
   }
 
   // Método inicial que muestra los eventos sin filtro de distancia
-  fetchEventosInicial() async {
+  Future<void> fetchEventosInicial() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token =
@@ -59,10 +61,14 @@ class _EventosPageState extends State<EventosPage> {
       setState(() {
         loading = true;
       });
+
       final url = 'http://192.168.100.6:8000/goOutApp/eventos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
-      /*final url = 'http://172.19.61.234:8000/goOutApp/eventos' +
-          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');*/
+
+      /*
+      final url = 'http://127.0.0.1:8000/goOutApp/eventos' +
+          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
+      */
 
       final response = await http.get(
         Uri.parse(url),
@@ -90,7 +96,7 @@ class _EventosPageState extends State<EventosPage> {
   }
 
   // Método que muestra los eventos con filtro de distancia
-  fetchEventosCercanos() async {
+  Future<void> fetchEventosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -114,19 +120,20 @@ class _EventosPageState extends State<EventosPage> {
         print('token en fetchEvetosCercanos');
         print(token);
 
-        /*final uri =
-            Uri.http('192.168.100.6:8000', '/goOutApp/comidas/cercanas', {
-          'lat': position.latitude.toString(),
-          'lon': position.longitude.toString(),
-          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
-        });*/
-
         final uri =
             Uri.https('192.168.100.6:8000', '/goOutApp/eventos/cercanos/', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
         });
+
+        /*
+        final uri = Uri.http('127.0.0.1:8000', '/goOutApp/eventos/cercanos/', {
+          'lat': position.latitude.toString(),
+          'lon': position.longitude.toString(),
+          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
+        });
+        */
 
         final response = await http.get(
           uri,
@@ -215,21 +222,41 @@ class _EventosPageState extends State<EventosPage> {
               itemCount: eventos.length,
               itemBuilder: (context, index) {
                 var evento = eventos[index];
+
                 String distanciaStr = evento['distancia'] != null
                     ? "${evento['distancia'].toStringAsFixed(2)} km"
                     : "Distancia no disponible";
+
+                var imageUrl = evento['imagenesEvento'] != null &&
+                        evento['imagenesEvento'].isNotEmpty
+                    ? evento['imagenesEvento'][0]['imagen']
+                    : 'https://via.placeholder.com/150'; // URL de imagen de placeholder
+
                 return ListTile(
                   title: Text(evento['titulo'] ?? 'No disponible'),
-                  subtitle: Text(
-                      '${evento['descripcion']} - \$${evento['precio']} - Distancia: $distanciaStr'),
-                  leading: evento['imagen'] != null
-                      ? Image.network(
-                          evento['imagen'],
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+                  subtitle: Row(
+                    children: [
+                      // Imagen de previsualización del evento
+                      Image.network(
+                        imageUrl,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      // Detalles del evento
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Local: ${evento['emprendimiento_nombre']}'),
+                            Text('Precio: ${evento['precio']}'),
+                            Text('Disponible: ${evento['disponibles']}'),
+                            Text('Distancia: $distanciaStr'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                   onTap: () async {
                     try {
                       var emprendimientoDetails =

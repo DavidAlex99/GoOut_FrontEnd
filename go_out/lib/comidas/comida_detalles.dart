@@ -18,6 +18,7 @@ class ComidaDetallesPage extends StatelessWidget {
             comida['imagen'] != null
                 ? Image.network(
                     'http://192.168.100.6:8000${comida['imagen']}',
+                    //'http://127.0.0.1:8000${comida['imagen']}',
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
@@ -27,7 +28,7 @@ class ComidaDetallesPage extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Text(
                 comida['descripcion'],
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
             // Puedes añadir más Widgets aquí para mostrar toda la información que quieras

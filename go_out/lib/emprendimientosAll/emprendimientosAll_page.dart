@@ -10,6 +10,7 @@ import './comidas_page.dart';
 import './eventos_page.dart';
 import '../login/auth_service.dart';
 import '../login/login_page.dart';
+import '../reservas/reservas_page.dart';
 
 // Metodo para obtener el objeto emprendimiento del emprendimiento que se ha selecciona de a lista de emprendimiento
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
@@ -86,7 +87,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
     fetchEmprendimientosInicial();
   }
 
-  fetchEmprendimientosInicial() async {
+  Future<void> fetchEmprendimientosInicial() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token =
@@ -100,7 +101,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
       final url = 'http://192.168.100.6:8000/goOutApp/emprendimientos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
 
-      /*final url = 'http://172.19.61.234:8000/goOutApp/emprendimientos' +
+      /*final url = 'http://192.168.100.6:8000/goOutApp/emprendimientos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');*/
 
       final response = await http.get(
@@ -130,7 +131,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
   }
 
   // Metodo para calcular la distancia hacia el emprendimiento basado en la altitud y en la longitud del emprendimiento de su seccion contacto
-  fetchEmprendimientosCercanos() async {
+  Future<void> fetchEmprendimientosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -161,12 +162,14 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
         });
 
-        /*final uri = Uri.http(
-            '172.19.61.234:8000', '/goOutApp/emprendimientos/cercanos', {
+        /*
+        final uri =
+            Uri.http('127.0.0.1:8000', '/goOutApp/emprendimientos/cercanos', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
-        });*/
+        });
+        */
 
         final response = await http.get(
           uri,
@@ -226,120 +229,134 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Emprendimientos'),
-        actions: [
-          DropdownButton<String>(
-            value: selectedCategory,
-            onChanged: (newValue) {
-              setState(() {
-                selectedCategory = newValue!;
-                fetchEmprendimientosInicial();
-              });
-            },
-            items: <String>[
-              'Todos',
-              'RESTAURANTE',
-              'BAR',
-              'DISCOTECA',
-              'CAFETERIA',
-              'TIENDA',
-              'SERVICIOS',
-              'OTROS',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-          IconButton(
-            icon: Icon(Icons.location_on),
-            onPressed: fetchEmprendimientosCercanos,
-          ),
-          IconButton(
-            icon: Icon(Icons.restaurant_menu),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ComidasPage()),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.party_mode),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EventosPage()),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: _logout,
-          ),
-        ],
-      ),
-      body: loading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: emprendimientos.length,
-              itemBuilder: (context, index) {
-                final emprendimiento = emprendimientos[index];
-                final distanciaStr = emprendimiento['distancia'] != null
-                    ? "${emprendimiento['distancia'].toStringAsFixed(2)} km"
-                    : "Distance not available";
-                final promedioCalificaciones =
-                    emprendimiento['promedio_calificaciones'] ?? 0;
-                String promedioTexto = promedioCalificaciones != null
-                    ? promedioCalificaciones.toStringAsFixed(1)
-                    : "Sin reseñas";
-                return ListTile(
-                  leading: Image.network(
-                    emprendimiento['imagen'],
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                  title: Text('${emprendimiento['nombre']}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          'Dirección: ${(emprendimiento['contacto']?['direccion'] ?? 'No disponible')} y ${(emprendimiento['contacto']?['direccion_secundaria'] ?? 'No disponible')}'),
-                      Text('Distancia: $distanciaStr'),
-                      Text(
-                          'Dirección: ${emprendimiento['direccion']}\nCalificación Promedio: $promedioTexto'),
-                      EstrellasCalificacion(
-                        promedioCalificacion:
-                            (emprendimiento['promedio_calificacion'] ?? 0)
-                                .toDouble(),
-                      )
-                    ],
-                  ),
-                  onTap: () async {
-                    try {
-                      final emprendimientoDetails =
-                          await fetchEmprendimientoDetails(
-                              emprendimiento['id']);
-                      print('Nombre: ${emprendimientoDetails['nombre']}');
-                      print('comidas: ${emprendimientoDetails['comidas']}');
-                      print('eventos: ${emprendimientoDetails['eventos']}');
-                      print('Contacto: ${emprendimientoDetails['contacto']}');
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EmprendimientoDetallesPage(
-                                emprendimiento: emprendimientoDetails),
-                          ));
-                    } catch (e) {
-                      print('Error navigating to emprendimiento details: $e');
-                    }
-                  },
+        appBar: AppBar(
+          title: Text('Emprendimientos'),
+          actions: [
+            DropdownButton<String>(
+              value: selectedCategory,
+              onChanged: (newValue) {
+                setState(() {
+                  selectedCategory = newValue!;
+                  fetchEmprendimientosInicial();
+                });
+              },
+              items: <String>[
+                'Todos',
+                'RESTAURANTE',
+                'BAR',
+                'DISCOTECA',
+                'CAFETERIA',
+                'TIENDA',
+                'SERVICIOS',
+                'OTROS',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+            IconButton(
+              icon: Icon(Icons.location_on),
+              onPressed: fetchEmprendimientosCercanos,
+            ),
+            IconButton(
+              icon: Icon(Icons.restaurant_menu),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ComidasPage()),
                 );
               },
             ),
-    );
+            IconButton(
+              icon: Icon(Icons.party_mode),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EventosPage()),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.bookmark),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReservasScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: _logout,
+            ),
+          ],
+        ),
+        body: loading
+            ? Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: fetchEmprendimientosInicial,
+                child: ListView.builder(
+                  itemCount: emprendimientos.length,
+                  itemBuilder: (context, index) {
+                    final emprendimiento = emprendimientos[index];
+                    final distanciaStr = emprendimiento['distancia'] != null
+                        ? "${emprendimiento['distancia'].toStringAsFixed(2)} km"
+                        : "Distance not available";
+                    final promedioCalificaciones =
+                        emprendimiento['promedio_calificaciones'] ?? 0;
+                    String promedioTexto = promedioCalificaciones != null
+                        ? promedioCalificaciones.toStringAsFixed(1)
+                        : "Sin reseñas";
+                    return ListTile(
+                      leading: Image.network(
+                        emprendimiento['imagen'],
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      title: Text('${emprendimiento['nombre']}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              'Dirección: ${(emprendimiento['contacto']?['direccion'] ?? 'No disponible')} y ${(emprendimiento['contacto']?['direccion_secundaria'] ?? 'No disponible')}'),
+                          Text('Distancia: $distanciaStr'),
+                          Text(
+                              'Categoria: ${(emprendimiento['categoria'] ?? 'No disponible')}'),
+                          EstrellasCalificacion(
+                            promedioCalificacion:
+                                (emprendimiento['promedio_calificacion'] ?? 0)
+                                    .toDouble(),
+                          )
+                        ],
+                      ),
+                      onTap: () async {
+                        try {
+                          final emprendimientoDetails =
+                              await fetchEmprendimientoDetails(
+                                  emprendimiento['id']);
+                          print('Nombre: ${emprendimientoDetails['nombre']}');
+                          print('comidas: ${emprendimientoDetails['comidas']}');
+                          print('eventos: ${emprendimientoDetails['eventos']}');
+                          print(
+                              'Contacto: ${emprendimientoDetails['contacto']}');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EmprendimientoDetallesPage(
+                                        emprendimiento: emprendimientoDetails),
+                              ));
+                        } catch (e) {
+                          print(
+                              'Error navigating to emprendimiento details: $e');
+                        }
+                      },
+                    );
+                  },
+                ),
+              ));
   }
 }

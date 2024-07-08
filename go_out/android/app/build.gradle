@@ -42,8 +42,9 @@ android {
 
     defaultConfig {
         applicationId "com.example.go_out"
-        minSdkVersion 20 // Cambiado de flutter.minSdkVersion a 20
+        minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
+        multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -59,4 +60,6 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation 'com.android.support:multidex:2.0.1'
+}

@@ -21,6 +21,11 @@ class _FormularioContactoPageState extends State<FormularioContactoPage> {
     final response = await http.post(
       Uri.parse(
           'http://192.168.100.6:8000/goOutApp/emprendimientos/<int:pk_emprendimiento>/formulario_contacto/'),
+
+      /*
+      Uri.parse(
+          'http://127.0.0.1:8000/goOutApp/emprendimientos/<int:pk_emprendimiento>/formulario_contacto/'),
+      */
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nombre': nombre,
