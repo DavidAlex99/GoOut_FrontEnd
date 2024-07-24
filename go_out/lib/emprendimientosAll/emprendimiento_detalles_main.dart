@@ -22,10 +22,9 @@ class EmprendimientoDetallesPage extends StatefulWidget {
 class _EmprendimientoDetallesPageState
     extends State<EmprendimientoDetallesPage> {
   void _logout() async {
-    await AuthService().logout(); // Llama al método de cerrar sesión
+    await AuthService().logout();
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-          builder: (context) => LoginPage()), // Redirige al LoginPage
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 
@@ -38,7 +37,7 @@ class _EmprendimientoDetallesPageState
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5, // Número de secciones
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: Text(

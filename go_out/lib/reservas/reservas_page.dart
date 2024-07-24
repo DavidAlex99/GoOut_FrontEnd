@@ -86,8 +86,7 @@ class _ReservasScreenState extends State<ReservasScreen> {
                   itemCount: reservas.length,
                   itemBuilder: (context, index) {
                     var reserva = reservas[index];
-                    var evento =
-                        reserva['evento']; // Asegurarse que 'evento' es un mapa
+                    var evento = reserva['evento'];
                     return Card(
                       margin: EdgeInsets.all(8.0),
                       child: ListTile(

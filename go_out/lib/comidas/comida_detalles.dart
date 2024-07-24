@@ -7,7 +7,6 @@ class ComidaDetallesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Aquí podrías agregar más campos si están disponibles en el mapa de comida
     return Scaffold(
       appBar: AppBar(
         title: Text(comida['nombre']),
@@ -18,7 +17,6 @@ class ComidaDetallesPage extends StatelessWidget {
             comida['imagen'] != null
                 ? Image.network(
                     'http://192.168.100.6:8000${comida['imagen']}',
-                    //'http://127.0.0.1:8000${comida['imagen']}',
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
@@ -31,7 +29,6 @@ class ComidaDetallesPage extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
-            // Puedes añadir más Widgets aquí para mostrar toda la información que quieras
           ],
         ),
       ),

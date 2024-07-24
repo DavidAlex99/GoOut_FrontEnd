@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
-import 'session_manager.dart';
 import '../emprendimientosAll/emprendimientosAll_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -25,14 +24,12 @@ class _SignupPageState extends State<SignupPage> {
     String? userId = await AuthService()
         .register(username, email, firstName, lastName, password);
     if (userId != null) {
-      // pasar el userId del usuario actual
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => EmprendimientosPage(userId: userId)),
       );
     } else {
-      // Mostrar error si el registro falla
       showDialog(
         context: context,
         builder: (BuildContext context) {

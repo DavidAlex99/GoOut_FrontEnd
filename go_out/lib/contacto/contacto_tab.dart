@@ -16,13 +16,11 @@ class ContactoTab extends StatefulWidget {
 
 class _ContactoTabState extends State<ContactoTab> {
   late GoogleMapController mapController;
-  // para arrancar la ubicacion del cliente
   Set<Marker> markers = {};
 
   @override
   void initState() {
     super.initState();
-    // Inicializar el marcador del emprendimiento desde el inicio.
     final latitud =
         double.tryParse('${widget.emprendimiento['contacto']?['latitud']}');
     final longitud =
@@ -39,27 +37,21 @@ class _ContactoTabState extends State<ContactoTab> {
     mapController = controller;
   }
 
-  // obtener permiso ubicacion del cliente
   Future<void> _getUserLocation() async {
-    // Verifica y solicita los permisos de ubicación.
     var status = await Permission.locationWhenInUse.status;
     if (status.isDenied) {
-      // Los permisos están denegados, solicítalos.
       status = await Permission.locationWhenInUse.request();
       if (status.isDenied) {
-        // Los permisos fueron denegados definitivamente.
         print('Permiso de ubicación denegado');
         return;
       }
     }
 
     if (status.isPermanentlyDenied) {
-      // Los permisos están denegados permanentemente, dirige al usuario a la configuración.
       openAppSettings();
       return;
     }
 
-    // Asumiendo que ya has añadido el marcador del emprendimiento y del usuario a 'markers'
     final position = await Geolocator.getCurrentPosition();
     setState(() {
       markers.add(Marker(
@@ -69,14 +61,12 @@ class _ContactoTabState extends State<ContactoTab> {
       ));
     });
 
-    // Ubicación del emprendimiento.
     final LatLng emprendimientoLocation = LatLng(
         double.tryParse('${widget.emprendimiento['contacto']?['latitud']}') ??
             0,
         double.tryParse('${widget.emprendimiento['contacto']?['longitud']}') ??
             0);
 
-    // Crear LatLngBounds
     final LatLngBounds bounds = LatLngBounds(
       southwest: LatLng(
         min(emprendimientoLocation.latitude, position.latitude),
@@ -88,10 +78,8 @@ class _ContactoTabState extends State<ContactoTab> {
       ),
     );
 
-    // Ajustar la cámara para mostrar ambos marcadores
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
   }
-  // fin obtener permiso ubicacion del cliente
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +129,6 @@ class _ContactoTabState extends State<ContactoTab> {
             title: Text('Teléfono'),
             subtitle: Text(contacto['telefono'] ?? 'No disponible'),
           ),
-          // Imágenes de contacto si existen
           Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
@@ -154,7 +141,6 @@ class _ContactoTabState extends State<ContactoTab> {
             ...contacto['imagenesContacto']
                 .map((img) => Image.network(
                       'http://192.168.100.6:8000${img['imagen']}',
-                      //'http://127.0.0.1:8000${img['imagen']}',
                       fit: BoxFit.cover,
                     ))
                 .toList()
@@ -173,8 +159,7 @@ class _ContactoTabState extends State<ContactoTab> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      FormularioContactoPage(), // Navega a la nueva página
+                  builder: (context) => FormularioContactoPage(),
                 ),
               );
             },

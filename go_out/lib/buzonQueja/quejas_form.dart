@@ -48,11 +48,6 @@ class _QuejaFormPageState extends State<QuejaFormPage> {
       final response = await http.post(
         Uri.parse(
             "http://192.168.100.6:8000/goOutApp/emprendimientos/${widget.emprendimientoId}/crear_queja/"),
-
-        /*
-        Uri.parse(
-            "http://127.0.0.1:8000/goOutApp/emprendimientos/${widget.emprendimientoId}/crear_queja/"),
-        */
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',
@@ -67,8 +62,7 @@ class _QuejaFormPageState extends State<QuejaFormPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Queja enviada con éxito')),
         );
-        Navigator.pop(
-            context); // Regresa a la página anterior tras enviar la queja
+        Navigator.pop(context);
       } else {
         throw Exception(
             'Failed to send complaint. Status code: ${response.statusCode}');

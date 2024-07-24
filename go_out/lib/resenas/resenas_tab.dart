@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'resena_form.dart'; // Asegúrate de que este import refleja la ubicación correcta de tu archivo del formulario de reseñas.
+import 'resena_form.dart';
 
 class ResenasTab extends StatefulWidget {
   final Map emprendimiento;
@@ -29,8 +29,7 @@ class _ResenasTabState extends State<ResenasTab> {
     });
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print('token en _fetchResenas:');
       print(token);
 
@@ -41,15 +40,9 @@ class _ResenasTabState extends State<ResenasTab> {
       final response = await http.get(
         Uri.parse(
             "http://192.168.100.6:8000/goOutApp/emprendimientos/${widget.emprendimiento['id']}/resenas/"),
-
-        /*
-        Uri.parse(
-            "http://127.0.0.1:8000/goOutApp/emprendimientos/${widget.emprendimiento['id']}/resenas/"),
-        */
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':
-              'Token $token', // Añadir el encabezado de autorización
+          'Authorization': 'Token $token',
         },
       );
 
@@ -119,7 +112,6 @@ class _ResenasTabState extends State<ResenasTab> {
         builder: (context) =>
             ResenaFormPage(emprendimientoId: widget.emprendimiento['id']),
       ),
-    ).then((_) =>
-        _fetchResenas()); // Refrescar las reseñas después de regresar del formulario
+    ).then((_) => _fetchResenas());
   }
 }

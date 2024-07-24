@@ -14,7 +14,7 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final response = await http.get(
     Uri.parse(url),
     headers: {
-      'Authorization': 'Token $token', // Añadir el encabezado de autorización
+      'Authorization': 'Token $token',
     },
   );
 
@@ -53,7 +53,7 @@ class _EventoDetallesPageState extends State<EventoDetallesPage> {
     final response = await http.get(
       Uri.parse(url),
       headers: {
-        'Authorization': 'Token $token', // Añadir el encabezado de autorización
+        'Authorization': 'Token $token',
       },
     );
 
@@ -114,17 +114,6 @@ class _EventoDetallesPageState extends State<EventoDetallesPage> {
                     },
                     child: Text('Ver Emprendimiento Asociado'),
                   ),
-                  /*
-                  Text(
-                      'Emprendimiento: ${eventoDetails?['emprendimiento_nombre'] ?? ''}',
-                      style: TextStyle(fontSize: 18)),
-                  SizedBox(height: 10),
-                  Text(
-                      'Dirección: ${eventoDetails?['emprendimiento']['contacto']['direccion'] ?? ''}',
-                      style: TextStyle(fontSize: 18)),
-                  */
-
-                  // Imágenes del evento
                   ...?eventoDetails?['imagenesEvento']?.map<Widget>((img) {
                     return Image.network(img['imagen'], fit: BoxFit.cover);
                   }).toList(),

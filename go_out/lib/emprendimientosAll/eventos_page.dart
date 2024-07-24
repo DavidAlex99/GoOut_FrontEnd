@@ -10,10 +10,6 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
 
-  /*
-  final String url =
-      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
-  */
   final String url =
       'http://127.0.0.1:8000/goOutApp/emprendimientos/$emprendimientoId';
 
@@ -49,12 +45,10 @@ class _EventosPageState extends State<EventosPage> {
     fetchEventosInicial();
   }
 
-  // Método inicial que muestra los eventos sin filtro de distancia
   Future<void> fetchEventosInicial() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print('token en fetchEventoInicial:');
       print(token);
 
@@ -65,17 +59,11 @@ class _EventosPageState extends State<EventosPage> {
       final url = 'http://192.168.100.6:8000/goOutApp/eventos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
 
-      /*
-      final url = 'http://127.0.0.1:8000/goOutApp/eventos' +
-          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
-      */
-
       final response = await http.get(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':
-              'Token $token', // Añadir el encabezado de autorización
+          'Authorization': 'Token $token',
         },
       );
 
@@ -95,7 +83,6 @@ class _EventosPageState extends State<EventosPage> {
     }
   }
 
-  // Método que muestra los eventos con filtro de distancia
   Future<void> fetchEventosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
@@ -111,7 +98,7 @@ class _EventosPageState extends State<EventosPage> {
             desiredAccuracy: LocationAccuracy.high);
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('token'); // Obtener el token guardado
+        String? token = prefs.getString('token');
 
         if (token == null) {
           throw Exception('Authentication token not available');
@@ -127,19 +114,10 @@ class _EventosPageState extends State<EventosPage> {
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
         });
 
-        /*
-        final uri = Uri.http('127.0.0.1:8000', '/goOutApp/eventos/cercanos/', {
-          'lat': position.latitude.toString(),
-          'lon': position.longitude.toString(),
-          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
-        });
-        */
-
         final response = await http.get(
           uri,
           headers: {
-            'Authorization':
-                'Token $token', // Incluir el token en los encabezados
+            'Authorization': 'Token $token',
           },
         );
 
@@ -192,7 +170,7 @@ class _EventosPageState extends State<EventosPage> {
             onChanged: (String? newValue) {
               setState(() {
                 selectedCategory = newValue;
-                fetchEventosInicial(); // Refetch with new category but without distance filtering
+                fetchEventosInicial();
               });
             },
             items: <String>[
@@ -230,20 +208,18 @@ class _EventosPageState extends State<EventosPage> {
                 var imageUrl = evento['imagenesEvento'] != null &&
                         evento['imagenesEvento'].isNotEmpty
                     ? evento['imagenesEvento'][0]['imagen']
-                    : 'https://via.placeholder.com/150'; // URL de imagen de placeholder
+                    : 'https://via.placeholder.com/150';
 
                 return ListTile(
                   title: Text(evento['titulo'] ?? 'No disponible'),
                   subtitle: Row(
                     children: [
-                      // Imagen de previsualización del evento
                       Image.network(
                         imageUrl,
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
                       ),
-                      // Detalles del evento
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +246,7 @@ class _EventosPageState extends State<EventosPage> {
                         ),
                       );
                     } catch (e) {
-                      print(e); // Manejar el error adecuadamente.
+                      print(e);
                     }
                   },
                 );

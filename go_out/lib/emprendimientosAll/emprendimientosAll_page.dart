@@ -12,7 +12,6 @@ import '../login/auth_service.dart';
 import '../login/login_page.dart';
 import '../reservas/reservas_page.dart';
 
-// Metodo para obtener el objeto emprendimiento del emprendimiento que se ha selecciona de a lista de emprendimiento
 Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
@@ -23,7 +22,7 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final response = await http.get(
     Uri.parse(url),
     headers: {
-      'Authorization': 'Token $token', // Añadir el encabezado de autorización
+      'Authorization': 'Token $token',
     },
   );
 
@@ -33,7 +32,6 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
     throw Exception('Failed to load emprendimiento details');
   }
 }
-// Fin metodo para obtener el objeto emprendimiento del emprendimiento que se ha selecciona de a lista de emprendimiento
 
 class EmprendimientosPage extends StatefulWidget {
   final String userId;
@@ -51,10 +49,8 @@ class EstrellasCalificacion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Total de estrellas
     int totalEstrellas = 5;
 
-    // Cálculo de las estrellas llenas, medias y vacías
     int estrellasLlenas = promedioCalificacion.floor();
     bool tieneMediaEstrella = (promedioCalificacion - estrellasLlenas) >= 0.5;
     int estrellasVacias =
@@ -62,12 +58,9 @@ class EstrellasCalificacion extends StatelessWidget {
 
     return Row(
       children: [
-        // Estrellas llenas
         for (int i = 0; i < estrellasLlenas; i++)
           Icon(Icons.star, color: Colors.amber),
-        // Media estrella, si corresponde
         if (tieneMediaEstrella) Icon(Icons.star_half, color: Colors.amber),
-        // Estrellas vacías
         for (int i = 0; i < estrellasVacias; i++)
           Icon(Icons.star_border, color: Colors.amber),
       ],
@@ -101,15 +94,11 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
       final url = 'http://192.168.100.6:8000/goOutApp/emprendimientos' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
 
-      /*final url = 'http://192.168.100.6:8000/goOutApp/emprendimientos' +
-          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');*/
-
       final response = await http.get(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':
-              'Token $token', // Añadir el encabezado de autorización
+          'Authorization': 'Token $token',
         },
       );
 
@@ -130,7 +119,6 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
     }
   }
 
-  // Metodo para calcular la distancia hacia el emprendimiento basado en la altitud y en la longitud del emprendimiento de su seccion contacto
   Future<void> fetchEmprendimientosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
@@ -146,7 +134,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
             desiredAccuracy: LocationAccuracy.high);
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('token'); // Obtener el token guardado
+        String? token = prefs.getString('token');
 
         if (token == null) {
           throw Exception('Authentication token not available');
@@ -162,20 +150,10 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
         });
 
-        /*
-        final uri =
-            Uri.http('127.0.0.1:8000', '/goOutApp/emprendimientos/cercanos', {
-          'lat': position.latitude.toString(),
-          'lon': position.longitude.toString(),
-          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
-        });
-        */
-
         final response = await http.get(
           uri,
           headers: {
-            'Authorization':
-                'Token $token', // Incluir el token en los encabezados
+            'Authorization': 'Token $token',
           },
         );
 
@@ -197,7 +175,6 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
       _showLocationPermissionDialog();
     }
   }
-  // Fin metodo para calcular la distancia hacia el emprendimiento basado en la altitud y en la longitud del emprendimiento de su seccion contacto
 
   void _showLocationPermissionDialog() {
     showDialog(
@@ -219,10 +196,9 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
   }
 
   void _logout() async {
-    await AuthService().logout(); // Solo llama al método de cerrar sesión
+    await AuthService().logout();
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-          builder: (context) => LoginPage()), // Redirige al LoginPage
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 
@@ -337,11 +313,7 @@ class _EmprendimientosPageState extends State<EmprendimientosPage> {
                           final emprendimientoDetails =
                               await fetchEmprendimientoDetails(
                                   emprendimiento['id']);
-                          print('Nombre: ${emprendimientoDetails['nombre']}');
-                          print('comidas: ${emprendimientoDetails['comidas']}');
-                          print('eventos: ${emprendimientoDetails['eventos']}');
-                          print(
-                              'Contacto: ${emprendimientoDetails['contacto']}');
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(

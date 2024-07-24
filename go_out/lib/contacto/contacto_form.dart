@@ -17,15 +17,9 @@ class _FormularioContactoPageState extends State<FormularioContactoPage> {
     final email = _emailController.text;
     final mensaje = _mensajeController.text;
 
-    // Llama a tu API para enviar el mensaje al emprendimiento
     final response = await http.post(
       Uri.parse(
           'http://192.168.100.6:8000/goOutApp/emprendimientos/<int:pk_emprendimiento>/formulario_contacto/'),
-
-      /*
-      Uri.parse(
-          'http://127.0.0.1:8000/goOutApp/emprendimientos/<int:pk_emprendimiento>/formulario_contacto/'),
-      */
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nombre': nombre,
@@ -34,12 +28,10 @@ class _FormularioContactoPageState extends State<FormularioContactoPage> {
       }),
     );
 
-    // Verifica el estado de la respuesta y muestra un mensaje al usuario
     if (response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Mensaje enviado correctamente')),
       );
-      // Limpia los campos después de enviar
       _nombreController.clear();
       _emailController.clear();
       _mensajeController.clear();

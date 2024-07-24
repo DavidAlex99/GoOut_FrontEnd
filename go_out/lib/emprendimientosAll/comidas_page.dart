@@ -10,18 +10,13 @@ Future<Map> fetchEmprendimientoDetails(int emprendimientoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
 
-/*
-    final String url =
-      'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
-*/
-
   final String url =
       'http://192.168.100.6:8000/goOutApp/emprendimientos/$emprendimientoId';
 
   final response = await http.get(
     Uri.parse(url),
     headers: {
-      'Authorization': 'Token $token', // Añadir el encabezado de autorización
+      'Authorization': 'Token $token',
     },
   );
 
@@ -51,18 +46,14 @@ class _ComidasPageState extends State<ComidasPage> {
   Future<void> fetchComidasInicial() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print('token en fetchComidasInicial:');
       print(token);
 
       setState(() {
         loading = true;
       });
-      /*
-      final url = 'http://192.168.100.6:8000/goOutApp/comidas' +
-          (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
-      */
+
       final url = 'http://127.0.0.1:8000/goOutApp/comidas' +
           (selectedCategory != 'Todos' ? '?categoria=$selectedCategory' : '');
 
@@ -70,8 +61,7 @@ class _ComidasPageState extends State<ComidasPage> {
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':
-              'Token $token', // Añadir el encabezado de autorización
+          'Authorization': 'Token $token',
         },
       );
 
@@ -106,7 +96,7 @@ class _ComidasPageState extends State<ComidasPage> {
             desiredAccuracy: LocationAccuracy.high);
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('token'); // Obtener el token guardado
+        String? token = prefs.getString('token');
 
         if (token == null) {
           throw Exception('Authentication token not available');
@@ -121,14 +111,6 @@ class _ComidasPageState extends State<ComidasPage> {
           'lon': position.longitude.toString(),
           'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
         });
-
-        /*
-        final uri = Uri.http('127.0.0.1:8000', '/goOutApp/comidas/cercanas/', {
-          'lat': position.latitude.toString(),
-          'lon': position.longitude.toString(),
-          'categoria': selectedCategory == 'Todos' ? '' : selectedCategory,
-        });
-        */
 
         final response = await http.get(
           uri,
@@ -223,10 +205,8 @@ class _ComidasPageState extends State<ComidasPage> {
                   title: Text(comida['nombre']),
                   subtitle: Row(
                     children: [
-                      // Imagen de previsualización del evento
                       Image.network(comida['imagen'],
                           width: 100, height: 100, fit: BoxFit.cover),
-                      // Detalles del evento
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'comida_detalles.dart'; // Asegúrate de crear este archivo
+import 'comida_detalles.dart';
 
 class MenuTab extends StatelessWidget {
   final Map emprendimiento;
@@ -10,7 +10,6 @@ class MenuTab extends StatelessWidget {
   Widget build(BuildContext context) {
     List<dynamic> comidas = emprendimiento['comidas'] ?? [];
 
-    // Verifica si la lista está vacía
     if (comidas.isEmpty) {
       return Center(
         child: Text(
@@ -32,17 +31,14 @@ class MenuTab extends StatelessWidget {
             leading: comida['imagen'] != null
                 ? Image.network(
                     'http://192.168.100.6:8000${comida['imagen']}',
-                    //'http://127.0.0.1:8000${comida['imagen']}',
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
                   )
-                : SizedBox(
-                    width: 100, height: 100), // Un placeholder o espacio vacío
+                : SizedBox(width: 100, height: 100),
             trailing: IconButton(
               icon: Icon(Icons.info_outline),
               onPressed: () {
-                // Navegar a la nueva página de detalles
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ComidaDetallesPage(comida: comida),
                 ));

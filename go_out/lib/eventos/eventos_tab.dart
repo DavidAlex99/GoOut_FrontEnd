@@ -20,7 +20,6 @@ class _EventosTabState extends State<EventosTab> {
   @override
   void initState() {
     super.initState();
-    // Asignamos los eventos desde el emprendimiento al iniciar.
     eventos = widget.emprendimiento['eventos'] ?? [];
   }
 

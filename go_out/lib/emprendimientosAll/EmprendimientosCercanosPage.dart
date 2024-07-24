@@ -27,10 +27,6 @@ class _EmprendimientosCercanosPageState
     final response = await http
         .get(Uri.parse('http://192.168.100.6:8000/goOutApp/emprendimientos'));
 
-    /*
-    final response = await http
-        .get(Uri.parse('http://127.0.0.1:8000/goOutApp/emprendimientos'));
-    */
     if (response.statusCode == 200) {
       _parseEmprendimientos(response.body);
     } else {
@@ -38,7 +34,6 @@ class _EmprendimientosCercanosPageState
         setState(() {
           loading = false;
         });
-        // Manejar el error de carga
       }
     }
   }
@@ -75,10 +70,6 @@ class _EmprendimientosCercanosPageState
         final response = await http.get(Uri.parse(
             'http://192.168.100.6:8000/goOutApp/emprendimientos/cercanos/?lat=${position.latitude}&lon=${position.longitude}'));
 
-        /*
-        final response = await http.get(Uri.parse(
-            'http://127.0.0.1:8000/goOutApp/emprendimientos/cercanos/?lat=${position.latitude}&lon=${position.longitude}'));
-        */
         if (response.statusCode == 200) {
           _parseEmprendimientos(response.body);
         } else {
@@ -86,7 +77,6 @@ class _EmprendimientosCercanosPageState
             setState(() {
               loading = false;
             });
-            // Manejar el error de carga
           }
         }
       } catch (e) {
@@ -94,11 +84,9 @@ class _EmprendimientosCercanosPageState
           setState(() {
             loading = false;
           });
-          // Manejar el error
         }
       }
     } else {
-      // Manejar el caso en que el usuario no otorga permiso
       _showLocationPermissionDialog();
     }
   }

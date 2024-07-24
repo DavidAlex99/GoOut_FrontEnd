@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import './pago_page.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class DetalleEventoPage extends StatefulWidget {
   final Map evento;
@@ -38,8 +36,6 @@ class _DetalleEventoPageState extends State<DetalleEventoPage> {
 
     double total = cantidad * double.parse(widget.evento['precio'].toString());
 
-    // Aquí podrías añadir la lógica para redirigir al usuario a una pantalla de pago
-    // Por ejemplo, pasando la cantidad y el total al método que gestiona el pago
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -87,7 +83,6 @@ class _DetalleEventoPageState extends State<DetalleEventoPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Otros detalles del evento...
                   TextField(
                     controller: _cantidadController,
                     decoration: InputDecoration(
